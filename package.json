@@ -1,15 +1,26 @@
 {
   "name": "sinatra-api",
-  "version": "1.0.50",
+  "version": "1.0.0",
   "scripts": {
+    "build": "bun build --compile --bytecode --minify --target bun --outfile bin/sinatra-api ./src/app.ts",
+    "prod": "./bin/sinatra-api",
+    "prod:clean": "npm run build && npm run prod",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/app.ts"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/swagger": "^1.1.5",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.1",
+    "drizzle-typebox": "^0.1.1",
+    "elysia": "latest",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/pg": "^8.11.10",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.28.0",
+    "tsx": "^4.19.2"
   },
-  "module": "src/index.js"
+  "module": "src/app.js"
 }
