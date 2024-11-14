@@ -12,8 +12,6 @@ export default new Elysia().post("/", async ({ body, set }) => {
     const {
         customerId,
         domain,
-        dnsVerificationKey,
-        dnsVerificationStatus,
         apiKey,
         userId, // TODO: Workaround til auth module is ready => will be added to the context if the user is logged in
     } = body;
@@ -46,11 +44,13 @@ export default new Elysia().post("/", async ({ body, set }) => {
         return { error: "Customer does not belong to user" };
     }
 
+    const dnsVerificationKey = Math.random().toString(36).slice(2);
+
     const [siteCreated] = await db.insert(schemas.sites).values({
         customerId,
         domain,
         dnsVerificationKey,
-        dnsVerificationStatus,
+        dnsVerificationStatus: "pending",
         apiKey,
     }).returning();
 
@@ -61,8 +61,6 @@ export default new Elysia().post("/", async ({ body, set }) => {
         customerId: site.customerId,
         userId: user.id,
         domain: site.domain,
-        dnsVerificationKey: site.dnsVerificationKey,
-        dnsVerificationStatus: site.dnsVerificationStatus,
         apiKey: site.apiKey,
     }),
 });
