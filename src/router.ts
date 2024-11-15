@@ -1,8 +1,12 @@
 import { Elysia } from "elysia";
 
-import userRoutes from "./api/users/user.routes";
-import customerRoutes from "./api/customers/customer.routes";
-import sitesRoutes from "./api/sites/sites.routes";
+import authController from "./api/auth/auth.controller";
+import userController from "./api/users/user.controller";
+import customerController from "./api/customers/customer.controller";
+import sitesController from "./api/sites/site.controller";
 
 export default new Elysia()
-    .use(userRoutes).use(customerRoutes).use(sitesRoutes);
+    .use(authController)
+    .use(userController)
+    .use(customerController)
+    .use(sitesController);
