@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+
 import db from "../../database/database";
 import schemas from "../../database/schemas";
 import { verifyDnsKey } from "../../helpers/verify-dns-key";

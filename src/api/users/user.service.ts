@@ -1,4 +1,5 @@
-import { eq, getTableColumns, SQL } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
+
 import db from "../../database/database";
 import schemas from "../../database/schemas";
 

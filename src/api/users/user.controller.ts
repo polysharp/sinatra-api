@@ -1,7 +1,7 @@
 import { Elysia, error } from "elysia";
 
-import { getUsers, getUserWithEmail } from "./user.service";
 import authHandler from "../../hooks/auth.handler";
+import { getUsers, getUserWithEmail } from "./user.service";
 
 export default new Elysia().group("/users", (app) => {
     app

@@ -1,5 +1,5 @@
-import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 import { createSecretKey } from "crypto";
+import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 
 const SECRET_KEY = createSecretKey(
     Buffer.from(Bun.env.JWT_SECRET!, "utf-8"),

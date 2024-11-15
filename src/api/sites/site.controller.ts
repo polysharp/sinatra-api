@@ -1,8 +1,8 @@
 import { Elysia, error, t } from "elysia";
 
+import { models } from "../../database/models";
 import authHandler from "../../hooks/auth.handler";
 import { createSiteService, verifyDnsService } from "./site.service";
-import { models } from "../../database/models";
 
 const { site } = models.site.insert;
 

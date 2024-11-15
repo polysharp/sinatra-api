@@ -1,5 +1,3 @@
-import { eq } from "drizzle-orm";
-
 import db from "../../database/database";
 import schemas from "../../database/schemas";
 import { hashPassword, verifyPassword } from "../../helpers/hashpwd";

@@ -1,7 +1,7 @@
 import { Elysia, error, t } from "elysia";
 
-import authHandler from "../../hooks/auth.handler";
 import { models } from "../../database/models";
+import authHandler from "../../hooks/auth.handler";
 import {
     createCustomerService,
     getCustomersWithEmail,
