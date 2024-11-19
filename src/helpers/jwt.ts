@@ -6,13 +6,13 @@ const SECRET_KEY = createSecretKey(
 );
 
 export interface JwtPayload extends JWTPayload {
-    userId: number;
+    userId: string;
     email: string;
 }
 
 export async function createJwt(
     payload: JwtPayload,
-    expiresIn = "1day",
+    expiresIn = "30days",
 ): Promise<string> {
     return new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })
