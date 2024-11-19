@@ -44,7 +44,7 @@ export default new Elysia().group("/workspaces", (app) => {
         }).get("/", async ({ user }) => {
             try {
                 const workspacesFromDb = await getWorkspacesWithEmail(
-                    user.email,
+                    user.id,
                 );
 
                 return workspacesFromDb;

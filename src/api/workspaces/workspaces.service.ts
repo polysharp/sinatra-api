@@ -4,25 +4,25 @@ import db from "../../database/database";
 import schemas from "../../database/schemas";
 
 export const createWorkspaceService = async (name: string, userId: string) => {
-    const [{ id: workspaceId }] = await db.insert(schemas.workspace).values({
+    const [workspaceCreted] = await db.insert(schemas.workspace).values({
         name,
-    }).returning({ id: schemas.workspace.id });
+    }).returning();
 
     await db.insert(schemas.workspaceUser).values({
-        workspaceId,
+        workspaceId: workspaceCreted.id,
         userId,
         role: "ADMIN",
         owner: true,
     });
 
-    return { id: workspaceId, name };
+    return workspaceCreted;
 };
 
 export const getWorkspacesWithEmail = async (userId: string) => {
     const userWorkspaces = await db
         .select({
-            workspaceId: schemas.workspace.id,
-            workspaceName: schemas.workspace.name,
+            id: schemas.workspace.id,
+            name: schemas.workspace.name,
             createdAt: schemas.workspace.createdAt,
             updatedAt: schemas.workspace.updatedAt,
             role: schemas.workspaceUser.role,
