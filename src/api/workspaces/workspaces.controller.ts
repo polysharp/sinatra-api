@@ -3,13 +3,13 @@ import { Elysia, error, t } from "elysia";
 import { models } from "../../database/models";
 import authHandler from "../../hooks/auth.handler";
 import {
-    createCustomerService,
-    getCustomersWithEmail,
-} from "./customer.service";
+    createWorkspaceService,
+    getWorkspacesWithEmail,
+} from "./workspaces.service";
 
-const { customer } = models.customer.insert;
+const { workspace } = models.workspace.insert;
 
-export default new Elysia().group("/customers", (app) => {
+export default new Elysia().group("/workspaces", (app) => {
     app
         .derive(async ({ headers: { authorization } }) => {
             const user = await authHandler(authorization);
@@ -26,27 +26,28 @@ export default new Elysia().group("/customers", (app) => {
         })
         .post("/", async ({ user, set, body }) => {
             try {
-                const siteCreated = await createCustomerService({
-                    email: user.email,
-                    ...body,
-                });
+                const workspaceCreted = await createWorkspaceService(
+                    body.name,
+                    user.id,
+                );
 
                 set.status = 201;
-                return siteCreated;
+                return workspaceCreted;
             } catch (err) {
                 console.error(err);
                 return error(400);
             }
         }, {
             body: t.Object({
-                domain: customer.domain,
-                name: customer.name,
+                name: workspace.name,
             }),
         }).get("/", async ({ user }) => {
             try {
-                const customersFromDb = await getCustomersWithEmail(user.email);
+                const workspacesFromDb = await getWorkspacesWithEmail(
+                    user.email,
+                );
 
-                return customersFromDb;
+                return workspacesFromDb;
             } catch (err) {
                 console.error(err);
                 return error(404);
