@@ -1,10 +1,4 @@
-import { Elysia, error, t } from "elysia";
-
-import { models } from "../../database/models";
-// import authHandler from "../../hooks/auth.handler";
-// import { createSiteService, verifyDnsService } from "./site.service";
-
-const { site } = models.site.insert;
+import { Elysia } from "elysia";
 
 export default new Elysia().group("/sites", (app) => {
     // app

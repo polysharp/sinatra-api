@@ -1,9 +1,9 @@
 import Elysia, { error, t } from "elysia";
 
 import { models } from "@/database/models";
+import { authMiddleware } from "@/hooks/auth.handler";
 
 import { createDomainService } from "./domain.service";
-import { authMiddleware } from "@/hooks/auth.handler";
 
 const { domain } = models.domain.insert;
 

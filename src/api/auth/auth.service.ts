@@ -1,7 +1,7 @@
-import db from "../../database/database";
-import schemas from "../../database/schemas";
-import { hashPassword, verifyPassword } from "../../helpers/hashpwd";
-import { createJwt } from "../../helpers/jwt";
+import db from "@/database/database";
+import schemas from "@/database/schemas";
+import { hashPassword, verifyPassword } from "@/helpers/hashpwd";
+import { createJwt } from "@/helpers/jwt";
 
 export const signUpService = async (email: string, password: string) => {
     const hashedPassword = await hashPassword(password);

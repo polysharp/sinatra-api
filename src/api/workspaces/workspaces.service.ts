@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
-import db from "../../database/database";
-import schemas from "../../database/schemas";
+import db from "@/database/database";
+import schemas from "@/database/schemas";
 
 export const createWorkspace = async (name: string, userId: string) => {
     const [workspaceCreated] = await db.insert(schemas.workspace).values({

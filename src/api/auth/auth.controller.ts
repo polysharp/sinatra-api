@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 
-import { models } from "../../database/models";
+import { models } from "@/database/models";
+
 import { getUserWithEmail } from "../users/user.service";
 import { signInService, signUpService } from "./auth.service";
 

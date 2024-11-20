@@ -1,8 +1,8 @@
 import { Elysia, error, t } from "elysia";
 
+import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import { models } from "../../database/models";
 import { createWorkspace, getUserWorkspaces } from "./workspaces.service";
 
 const { workspace } = models.workspace.insert;

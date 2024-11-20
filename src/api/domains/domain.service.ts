@@ -1,8 +1,8 @@
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { generateDnsKey } from "@/helpers/verify-dns-key";
 
 import { getWorkspaceUser } from "../workspace-users/workspace-users.service";
-import { generateDnsKey } from "@/helpers/verify-dns-key";
 
 type CreateDomainInput = {
     userId: string;
