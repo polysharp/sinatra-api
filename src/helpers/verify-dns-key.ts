@@ -1,5 +1,7 @@
 import dns from "dns/promises";
 
+import { createId } from "./custom-cuid2";
+
 export async function verifyDnsKey(
     domain: string,
     key: string | null,
@@ -22,4 +24,8 @@ export async function verifyDnsKey(
     } catch (e) {
         return false;
     }
+}
+
+export function generateDnsKey(): string {
+    return `sinatra-verification=${createId(16)}`;
 }
