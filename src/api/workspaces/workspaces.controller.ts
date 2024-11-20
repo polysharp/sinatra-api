@@ -1,26 +1,15 @@
 import { Elysia, error, t } from "elysia";
 
+import { authMiddleware } from "@/hooks/auth.handler";
+
 import { models } from "../../database/models";
-import authHandler from "../../hooks/auth.handler";
 import { createWorkspace, getUserWorkspaces } from "./workspaces.service";
 
 const { workspace } = models.workspace.insert;
 
 export default new Elysia().group("/workspaces", (app) => {
     app
-        .derive(async ({ headers: { authorization } }) => {
-            const user = await authHandler(authorization);
-            if (!user) {
-                return error("Unauthorized");
-            }
-
-            return {
-                user: {
-                    id: user.userId,
-                    email: user.email,
-                },
-            };
-        })
+        .derive(authMiddleware)
         .post("/", async ({ user, set, body }) => {
             try {
                 const workspaceCreated = await createWorkspace(
