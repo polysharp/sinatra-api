@@ -11,9 +11,9 @@ export default new Elysia().group("/domains", (app) => {
     app
         .derive(authMiddleware)
         .post(
-            "/:workspaceId",
+            "/",
             async (
-                { user, body: { name: domainName }, params: { workspaceId } },
+                { user, body: { name: domainName, workspaceId } },
             ) => {
                 try {
                     const domainCreated = await createDomainService({
@@ -31,8 +31,6 @@ export default new Elysia().group("/domains", (app) => {
             {
                 body: t.Object({
                     name: domain.name,
-                }),
-                params: t.Object({
                     workspaceId: domain.workspaceId,
                 }),
             },
