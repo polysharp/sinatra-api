@@ -19,7 +19,7 @@ export const workspaceUser = pgTable(
             .primaryKey().unique(),
         workspaceId: varchar().notNull().references(() => workspace.id),
         userId: varchar().notNull().references(() => user.id),
-        role: varchar({ enum: ["ADMIN", "MODERATOR", "USER"] }).notNull(),
+        role: varchar({ enum: ["ADMIN", "USER"] }).notNull(),
         owner: boolean().notNull(),
     },
     (table) => ({
