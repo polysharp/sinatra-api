@@ -2,10 +2,7 @@ import { Elysia, error, t } from "elysia";
 
 import { models } from "../../database/models";
 import authHandler from "../../hooks/auth.handler";
-import {
-    createWorkspaceService,
-    getUserWorkspaces,
-} from "./workspaces.service";
+import { createWorkspace, getUserWorkspaces } from "./workspaces.service";
 
 const { workspace } = models.workspace.insert;
 
@@ -26,13 +23,13 @@ export default new Elysia().group("/workspaces", (app) => {
         })
         .post("/", async ({ user, set, body }) => {
             try {
-                const workspaceCreted = await createWorkspaceService(
+                const workspaceCreated = await createWorkspace(
                     body.name,
                     user.id,
                 );
 
                 set.status = 201;
-                return workspaceCreted;
+                return workspaceCreated;
             } catch (err) {
                 console.error(err);
                 return error(400);
@@ -41,7 +38,8 @@ export default new Elysia().group("/workspaces", (app) => {
             body: t.Object({
                 name: workspace.name,
             }),
-        }).get("/", async ({ user }) => {
+        })
+        .get("/", async ({ user }) => {
             try {
                 const workspacesFromDb = await getUserWorkspaces(
                     user.id,

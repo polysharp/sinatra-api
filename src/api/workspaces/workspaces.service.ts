@@ -1,21 +1,21 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import db from "../../database/database";
 import schemas from "../../database/schemas";
 
-export const createWorkspaceService = async (name: string, userId: string) => {
-    const [workspaceCreted] = await db.insert(schemas.workspace).values({
+export const createWorkspace = async (name: string, userId: string) => {
+    const [workspaceCreated] = await db.insert(schemas.workspace).values({
         name,
     }).returning();
 
     await db.insert(schemas.workspaceUser).values({
-        workspaceId: workspaceCreted.id,
+        workspaceId: workspaceCreated.id,
         userId,
         role: "ADMIN",
         owner: true,
     });
 
-    return workspaceCreted;
+    return workspaceCreated;
 };
 
 export const getUserWorkspaces = async (userId: string) => {
