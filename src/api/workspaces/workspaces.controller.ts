@@ -4,7 +4,7 @@ import { models } from "../../database/models";
 import authHandler from "../../hooks/auth.handler";
 import {
     createWorkspaceService,
-    getWorkspacesWithEmail,
+    getUserWorkspaces,
 } from "./workspaces.service";
 
 const { workspace } = models.workspace.insert;
@@ -43,7 +43,7 @@ export default new Elysia().group("/workspaces", (app) => {
             }),
         }).get("/", async ({ user }) => {
             try {
-                const workspacesFromDb = await getWorkspacesWithEmail(
+                const workspacesFromDb = await getUserWorkspaces(
                     user.id,
                 );
 

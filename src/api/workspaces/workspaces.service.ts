@@ -18,7 +18,7 @@ export const createWorkspaceService = async (name: string, userId: string) => {
     return workspaceCreted;
 };
 
-export const getWorkspacesWithEmail = async (userId: string) => {
+export const getUserWorkspaces = async (userId: string) => {
     const userWorkspaces = await db
         .select({
             id: schemas.workspace.id,
