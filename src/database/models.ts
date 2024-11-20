@@ -5,6 +5,30 @@ import schemas from "./schemas";
 import { spreads } from "./utils";
 
 export const models = {
+    apiKey: {
+        insert: spreads({
+            apiKey: createInsertSchema(schemas.apiKey),
+        }, "insert"),
+        select: spreads({
+            apiKey: createSelectSchema(schemas.apiKey),
+        }, "select"),
+    },
+    domain: {
+        insert: spreads({
+            domain: createInsertSchema(schemas.domain),
+        }, "insert"),
+        select: spreads({
+            domain: createSelectSchema(schemas.domain),
+        }, "select"),
+    },
+    site: {
+        insert: spreads({
+            site: createInsertSchema(schemas.site),
+        }, "insert"),
+        select: spreads({
+            site: createSelectSchema(schemas.site),
+        }, "select"),
+    },
     user: {
         insert: spreads({
             user: createInsertSchema(schemas.user, {
@@ -14,32 +38,15 @@ export const models = {
         select: spreads({
             user: createSelectSchema(schemas.user, {
                 email: t.String({ format: "email" }),
-                password: t.String({ format: "password" }),
             }),
         }, "select"),
     },
-    customer: {
+    workspace: {
         insert: spreads({
-            customer: createInsertSchema(schemas.customer, {
-                domain: t.String({ format: "hostname" }),
-            }),
+            workspace: createInsertSchema(schemas.workspace),
         }, "insert"),
         select: spreads({
-            customer: createSelectSchema(schemas.customer, {
-                domain: t.String({ format: "hostname" }),
-            }),
-        }, "select"),
-    },
-    site: {
-        insert: spreads({
-            site: createInsertSchema(schemas.sites, {
-                domain: t.String({ format: "hostname" }),
-            }),
-        }, "insert"),
-        select: spreads({
-            site: createSelectSchema(schemas.sites, {
-                domain: t.String({ format: "hostname" }),
-            }),
+            workspace: createSelectSchema(schemas.workspace),
         }, "select"),
     },
 } as const;

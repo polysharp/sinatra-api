@@ -2,17 +2,17 @@ import { createSecretKey } from "crypto";
 import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 
 const SECRET_KEY = createSecretKey(
-    Buffer.from(Bun.env.JWT_SECRET!, "utf-8"),
+    new Uint8Array(Buffer.from(Bun.env.JWT_SECRET!, "utf-8")),
 );
 
 export interface JwtPayload extends JWTPayload {
-    userId: number;
+    userId: string;
     email: string;
 }
 
 export async function createJwt(
     payload: JwtPayload,
-    expiresIn = "1day",
+    expiresIn = "30days",
 ): Promise<string> {
     return new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })

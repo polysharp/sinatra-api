@@ -1,23 +1,12 @@
-import { Elysia, error } from "elysia";
+import { Elysia } from "elysia";
 
-import authHandler from "../../hooks/auth.handler";
+import { authMiddleware } from "@/hooks/auth.handler";
+
 import { getUsers, getUserWithEmail } from "./user.service";
 
 export default new Elysia().group("/users", (app) => {
     app
-        .derive(async ({ headers: { authorization } }) => {
-            const user = await authHandler(authorization);
-            if (!user) {
-                return error("Unauthorized");
-            }
-
-            return {
-                user: {
-                    id: user.userId,
-                    email: user.email,
-                },
-            };
-        })
+        .derive(authMiddleware)
         .get("/me", async ({ user }) => {
             const userFromDb = await getUserWithEmail(user.email);
 

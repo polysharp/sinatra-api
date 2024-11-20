@@ -1,19 +1,28 @@
+import { error } from "elysia";
+
 import { verifyJwt } from "../helpers/jwt";
 
-export default async function authMiddleware(jwtToken?: string) {
-    if (!jwtToken) {
-        return undefined;
+export const authMiddleware = async (
+    { headers: { authorization } }: { headers: { authorization?: string } },
+) => {
+    if (!authorization) {
+        throw error("Unauthorized");
     }
 
-    const token = jwtToken?.startsWith("Bearer ")
-        ? jwtToken.slice(7)
-        : jwtToken;
+    const token = authorization?.startsWith("Bearer ")
+        ? authorization.slice(7)
+        : authorization;
 
     const payload = await verifyJwt(token);
 
     if (!payload) {
-        return undefined;
+        throw error("Unauthorized");
     }
 
-    return payload;
-}
+    return {
+        user: {
+            id: payload.userId,
+            email: payload.email,
+        },
+    };
+};
