@@ -1,9 +1,12 @@
-import { createSecretKey } from "crypto";
 import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 
-const SECRET_KEY = createSecretKey(
-    new Uint8Array(Buffer.from(Bun.env.JWT_SECRET!, "utf-8")),
-);
+const JWT_SECRET = Bun.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is missing");
+}
+
+const SECRET_KEY = new Uint8Array(Buffer.from(Bun.env.JWT_SECRET!, "utf-8"));
 
 export interface JwtPayload extends JWTPayload {
     userId: string;
