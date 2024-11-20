@@ -2,7 +2,7 @@ import { createSecretKey } from "crypto";
 import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 
 const SECRET_KEY = createSecretKey(
-    Buffer.from(Bun.env.JWT_SECRET!, "utf-8"),
+    new Uint8Array(Buffer.from(Bun.env.JWT_SECRET!, "utf-8")),
 );
 
 export interface JwtPayload extends JWTPayload {
