@@ -9,8 +9,7 @@ import {
   getUserWorkspaces,
 } from "./workspaces.service";
 
-const { workspace } = models.workspace.insert;
-const { workspace: workspaceSelect } = models.workspace.select;
+const { workspace } = models.workspace.select;
 
 export default new Elysia().group("/workspaces", (app) => {
   app
@@ -61,7 +60,7 @@ export default new Elysia().group("/workspaces", (app) => {
       },
       {
         params: t.Object({
-          workspaceId: workspaceSelect.id,
+          workspaceId: workspace.id,
         }),
       },
     );
