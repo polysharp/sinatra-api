@@ -4,50 +4,56 @@ import db from "@/database/database";
 import schemas from "@/database/schemas";
 
 type CreateSiteInput = {
-    userId: string;
-    workspaceId: string;
-    domainId: string;
-    apiKeyId: string;
+  userId: string;
+  workspaceId: string;
+  domainId: string;
+  apiKeyId: string;
 };
 
 export const createSiteService = async (payload: CreateSiteInput) => {
-    const { workspaceId, domainId, apiKeyId, userId } = payload;
+  const { workspaceId, domainId, apiKeyId, userId } = payload;
 
-    if (!userId) {
-        throw new Error("UserId is required");
-    }
+  if (!userId) {
+    throw new Error("UserId is required");
+  }
 
-    const workspaceExists = await db.select({
-        workspaceId: schemas.workspace.id,
+  const workspaceExists = await db
+    .select({
+      workspaceId: schemas.workspace.id,
     })
-        .from(schemas.workspace)
-        .where(eq(schemas.workspace.id, workspaceId))
-        .limit(1);
+    .from(schemas.workspace)
+    .where(eq(schemas.workspace.id, workspaceId))
+    .limit(1);
 
-    if (!workspaceExists.length) {
-        throw new Error("Workspace not found");
-    }
+  if (!workspaceExists.length) {
+    throw new Error("Workspace not found");
+  }
 
-    const workspaceBelongsToUser = await db.select().from(schemas.workspaceUser)
-        .where(
-            and(
-                eq(schemas.workspaceUser.workspaceId, workspaceId),
-                eq(schemas.workspaceUser.userId, userId),
-            ),
-        )
-        .limit(1);
+  const workspaceBelongsToUser = await db
+    .select()
+    .from(schemas.workspaceUser)
+    .where(
+      and(
+        eq(schemas.workspaceUser.workspaceId, workspaceId),
+        eq(schemas.workspaceUser.userId, userId),
+      ),
+    )
+    .limit(1);
 
-    if (!workspaceBelongsToUser.length) {
-        throw new Error("Workspace does not belong to user");
-    }
+  if (!workspaceBelongsToUser.length) {
+    throw new Error("Workspace does not belong to user");
+  }
 
-    const [siteCreated] = await db.insert(schemas.site).values({
-        workspaceId,
-        domainId,
-        apiKeyId,
-    }).returning();
+  const [siteCreated] = await db
+    .insert(schemas.site)
+    .values({
+      workspaceId,
+      domainId,
+      apiKeyId,
+    })
+    .returning();
 
-    return siteCreated;
+  return siteCreated;
 };
 
 // export const verifyDnsService = async (payload: VerifyDnsInput) => {

@@ -5,25 +5,28 @@ import { generateDnsKey } from "@/helpers/verify-dns-key";
 import { getWorkspaceUser } from "../workspace-users/workspace-users.service";
 
 type CreateDomainInput = {
-    userId: string;
-    workspaceId: string;
-    domainName: string;
+  userId: string;
+  workspaceId: string;
+  domainName: string;
 };
 
 export const createDomainService = async (payload: CreateDomainInput) => {
-    const { userId, workspaceId, domainName } = payload;
+  const { userId, workspaceId, domainName } = payload;
 
-    const workspaceUser = await getWorkspaceUser(workspaceId, userId);
-    if (!workspaceUser.length) {
-        throw new Error("Workspace does not belong to user");
-    }
+  const workspaceUser = await getWorkspaceUser(workspaceId, userId);
+  if (!workspaceUser.length) {
+    throw new Error("Workspace does not belong to user");
+  }
 
-    const [domainCreated] = await db.insert(schemas.domain).values({
-        name: domainName,
-        workspaceId,
-        verificationKey: generateDnsKey(),
-        verifcationStatus: "PENDING",
-    }).returning();
+  const [domainCreated] = await db
+    .insert(schemas.domain)
+    .values({
+      name: domainName,
+      workspaceId,
+      verificationKey: generateDnsKey(),
+      verifcationStatus: "PENDING",
+    })
+    .returning();
 
-    return domainCreated;
+  return domainCreated;
 };

@@ -6,10 +6,10 @@ import { workspaceUser } from "./schemas/workspace-user.schema";
 import { workspace } from "./schemas/workspace.schema";
 
 export default {
-    user,
-    site,
-    domain,
-    apiKey,
-    workspace,
-    workspaceUser,
+  user,
+  site,
+  domain,
+  apiKey,
+  workspace,
+  workspaceUser,
 } as const;

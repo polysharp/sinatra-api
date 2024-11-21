@@ -7,8 +7,8 @@ import userController from "./api/users/user.controller";
 import workspaceController from "./api/workspaces/workspaces.controller";
 
 export default new Elysia()
-    .use(authController)
-    .use(domainController)
-    .use(userController)
-    .use(sitesController)
-    .use(workspaceController);
+  .use(authController)
+  .use(domainController)
+  .use(userController)
+  .use(sitesController)
+  .use(workspaceController);
