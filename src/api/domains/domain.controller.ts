@@ -3,9 +3,13 @@ import Elysia, { error, t } from "elysia";
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import { createDomainService, getUserWorkspaceDomains } from "./domain.service";
+import {
+  createDomainService,
+  getUserWorkspaceDomains,
+  verifyDnsService,
+} from "./domain.service";
 
-const { domain } = models.domain.insert;
+const { domain } = models.domain.select;
 
 export default new Elysia().group("/domains", (app) => {
   app
@@ -51,6 +55,24 @@ export default new Elysia().group("/domains", (app) => {
       {
         query: t.Object({
           workspaceId: domain.workspaceId,
+        }),
+      },
+    )
+    .patch(
+      "/:domainId/verify",
+      async ({ user, params: { domainId } }) => {
+        try {
+          const domainUpdated = await verifyDnsService(domainId, user.id);
+
+          return domainUpdated;
+        } catch (err) {
+          console.error(err);
+          return error(400);
+        }
+      },
+      {
+        params: t.Object({
+          domainId: domain.id,
         }),
       },
     );
