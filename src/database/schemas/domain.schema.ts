@@ -14,7 +14,7 @@ export const domain = pgTable("domains", {
     .notNull()
     .references(() => workspace.id),
   verificationKey: varchar().notNull(),
-  verifcationStatus: varchar({
+  verificationStatus: varchar({
     enum: ["VERIFIED", "PENDING", "FAILED"],
   }).notNull(),
   verifiedAt: timestamp(),

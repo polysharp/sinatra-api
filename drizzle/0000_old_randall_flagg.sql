@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS "domains" (
 	"name" varchar NOT NULL,
 	"workspace_id" varchar NOT NULL,
 	"verification_key" varchar NOT NULL,
-	"verifcation_status" varchar NOT NULL,
+	"verification_status" varchar NOT NULL,
 	"verified_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,

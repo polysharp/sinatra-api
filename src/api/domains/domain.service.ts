@@ -24,7 +24,7 @@ export const createDomainService = async (payload: CreateDomainInput) => {
       name: domainName,
       workspaceId,
       verificationKey: generateDnsKey(),
-      verifcationStatus: "PENDING",
+      verificationStatus: "PENDING",
     })
     .returning();
 
