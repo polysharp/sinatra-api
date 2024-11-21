@@ -22,13 +22,17 @@ export const models = {
   domain: {
     insert: spreads(
       {
-        domain: createInsertSchema(schemas.domain),
+        domain: createInsertSchema(schemas.domain, {
+          name: t.String({ format: "hostname" }),
+        }),
       },
       "insert",
     ),
     select: spreads(
       {
-        domain: createSelectSchema(schemas.domain),
+        domain: createSelectSchema(schemas.domain, {
+          name: t.String({ format: "hostname" }),
+        }),
       },
       "select",
     ),
