@@ -3,6 +3,7 @@ import { Elysia } from "elysia";
 import cors from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 
+import config from "./config";
 import router from "./router";
 
 new Elysia()
@@ -12,4 +13,4 @@ new Elysia()
   .onStart(({ server }) =>
     console.log(`🦊 Elysia is running at ${server?.hostname}:${server?.port}`),
   )
-  .listen(3000);
+  .listen({ hostname: config.HOST, port: config.PORT });
