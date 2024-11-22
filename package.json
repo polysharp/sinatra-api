@@ -3,25 +3,26 @@
   "version": "1.0.0",
   "scripts": {
     "build": "bun build --compile --bytecode --minify --target bun --outfile bin/sinatra-api ./src/app.ts",
-    "prod": "./bin/sinatra-api",
-    "prod:clean": "npm run build && npm run prod",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/app.ts"
+    "bin": "./bin/sinatra-api",
+    "bin:clean": "npm run build && npm run bin",
+    "prod": "NODE_ENV=production bun run src/app.ts",
+    "test": "NODE_ENV=test echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=development bun run --watch src/app.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/swagger": "^1.1.5",
     "@paralleldrive/cuid2": "^2.2.2",
-    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.1",
     "drizzle-typebox": "^0.1.1",
-    "elysia": "latest",
+    "elysia": "^1.1.25",
     "jose": "^5.9.6",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/pg": "^8.11.10",
-    "bun-types": "latest",
+    "bun-types": "^1.1.36",
     "drizzle-kit": "^0.28.0",
     "prettier": "^3.3.3",
     "tsx": "^4.19.2"
