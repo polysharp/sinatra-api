@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-const combinedEnv = {
-  ...process.env,
-  ...((typeof Bun !== "undefined" && Bun.env) || {}),
-};
-
 const configSchema = z.object({
   HOST: z.string().default("0.0.0.0"),
   PORT: z
@@ -21,7 +16,7 @@ const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>;
 
-export const parseConfig = (env = combinedEnv): Config => {
+export const parseConfig = (env = Bun.env): Config => {
   const parsed = configSchema.safeParse(env);
 
   if (!parsed.success) {
