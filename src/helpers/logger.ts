@@ -1,5 +1,6 @@
 import fs from "fs";
 import pino from "pino";
+import pinoPretty from "pino-pretty";
 
 import config from "@/config";
 
@@ -26,7 +27,10 @@ class Logger {
     const streams = [
       {
         level: "info",
-        stream: process.stdout,
+        stream:
+          nodeEnv === "development"
+            ? pinoPretty({ colorize: true, ignore: "pid,hostname" })
+            : process.stdout,
       },
       {
         level: "info",
