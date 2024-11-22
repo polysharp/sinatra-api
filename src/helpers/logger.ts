@@ -2,8 +2,6 @@ import fs from "fs";
 import pino from "pino";
 import pinoPretty from "pino-pretty";
 
-import config from "@/config";
-
 const REDACT_PATHS = [
   "email",
   "*.email",
@@ -19,7 +17,7 @@ const REDACT_PATHS = [
 class Logger {
   private readonly logger: pino.Logger;
 
-  constructor(nodeEnv: typeof config.NODE_ENV) {
+  constructor(nodeEnv: string) {
     if (!fs.existsSync("./logs")) {
       fs.mkdirSync("./logs");
     }
@@ -73,4 +71,10 @@ class Logger {
   }
 }
 
-export default new Logger(config.NODE_ENV);
+const nodeEnv = Bun.env.NODE_ENV;
+if (!nodeEnv) {
+  console.error(`Invalid NODE_ENV: ${nodeEnv}`);
+  process.exit(1);
+}
+
+export default new Logger(nodeEnv);
