@@ -1,12 +1,12 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
+import config from "@/config";
+
 import schemas from "./schemas";
 
 const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgresql://myuser:mypassword@localhost:5432/mydatabase",
+  connectionString: config.DATABASE_URL,
 });
 
 const db = drizzle(pool, { casing: "snake_case", schema: schemas });
