@@ -1,5 +1,5 @@
 import fs from "fs";
-import pino from "pino";
+import pino, { type LoggerOptions } from "pino";
 import pinoPretty from "pino-pretty";
 
 const REDACT_PATHS = [
@@ -15,7 +15,7 @@ const REDACT_PATHS = [
 ];
 
 class Logger {
-  private readonly logger: pino.Logger;
+  private readonly logger: pino.Logger<"http">;
 
   constructor(nodeEnv: string) {
     if (!fs.existsSync("./logs")) {
@@ -40,18 +40,24 @@ class Logger {
       },
     ];
 
-    this.logger = pino(
-      {
-        level: nodeEnv === "test" ? "silent" : "info",
-        timestamp: pino.stdTimeFunctions.isoTime,
-        nestedKey: "payload",
-        redact: {
-          paths: nodeEnv === "production" ? REDACT_PATHS : [],
-          remove: true,
-        },
+    const pinoOptions: LoggerOptions<"http"> = {
+      level: nodeEnv === "test" ? "silent" : "info",
+      timestamp: pino.stdTimeFunctions.isoTime,
+      nestedKey: "payload",
+      redact: {
+        paths: nodeEnv === "production" ? REDACT_PATHS : [],
+        remove: true,
       },
-      pino.multistream(streams),
-    );
+      customLevels: {
+        http: 35,
+      },
+    };
+
+    this.logger = pino(pinoOptions, pino.multistream(streams));
+  }
+
+  public http(message: string, payload: Record<string, any> = {}): void {
+    this.logger.http(payload, message);
   }
 
   public info(message: string, payload: Record<string, any> = {}): void {
@@ -73,7 +79,7 @@ class Logger {
 
 const nodeEnv = Bun.env.NODE_ENV;
 if (!nodeEnv) {
-  console.error(`Invalid NODE_ENV: ${nodeEnv}`);
+  console.error("NODE_ENV missing");
   process.exit(1);
 }
 

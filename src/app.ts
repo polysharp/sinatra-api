@@ -5,9 +5,11 @@ import swagger from "@elysiajs/swagger";
 
 import config from "./config";
 import logger from "./helpers/logger";
+import httpLogger from "./hooks/httpLogger.handler";
 import router from "./router";
 
 new Elysia()
+  .use(httpLogger)
   .use(cors())
   .use(swagger())
   .use(router)
