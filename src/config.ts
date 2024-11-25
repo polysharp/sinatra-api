@@ -11,6 +11,10 @@ const configSchema = z.object({
     .default("3000"),
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+  API_KEY_CIPHER_SECRET: z
+    .string()
+    .min(32, "API_KEY_CIPHER_SECRET must be exactly 32 characters")
+    .max(32, "API_KEY_CIPHER_SECRET must be exactly 32 characters"),
   NODE_ENV: z.enum(["development", "production", "test"]),
 });
 
