@@ -3,11 +3,8 @@ import { Elysia, t } from "elysia";
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import {
-  createWorkspace,
-  getUserWorkspaceById,
-  getUserWorkspaces,
-} from "./workspaces.service";
+import { getUserWorkspaces } from "../workspace-users/workspace-users.service";
+import { createWorkspace, getUserWorkspaceById } from "./workspaces.service";
 
 const { workspace } = models.workspace.select;
 

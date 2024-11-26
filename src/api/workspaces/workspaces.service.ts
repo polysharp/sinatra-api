@@ -22,26 +22,6 @@ export const createWorkspace = async (name: string, userId: string) => {
   return workspaceCreated;
 };
 
-export const getUserWorkspaces = async (userId: string) => {
-  const userWorkspaces = await db
-    .select({
-      id: schemas.workspace.id,
-      name: schemas.workspace.name,
-      createdAt: schemas.workspace.createdAt,
-      updatedAt: schemas.workspace.updatedAt,
-      role: schemas.workspaceUser.role,
-      owner: schemas.workspaceUser.owner,
-    })
-    .from(schemas.workspaceUser)
-    .innerJoin(
-      schemas.workspace,
-      eq(schemas.workspaceUser.workspaceId, schemas.workspace.id),
-    )
-    .where(eq(schemas.workspaceUser.userId, userId));
-
-  return userWorkspaces.length ? userWorkspaces : [];
-};
-
 export const getUserWorkspaceById = async (
   userId: string,
   workspaceId: string,
