@@ -1,4 +1,4 @@
-import { error } from "elysia";
+import { Unauthorized } from "@/helpers/HttpError";
 
 import { verifyJwt } from "../helpers/jwt";
 
@@ -8,7 +8,7 @@ export const authMiddleware = async ({
   headers: { authorization?: string };
 }) => {
   if (!authorization) {
-    throw error("Unauthorized");
+    throw new Unauthorized("Authorization header is missing");
   }
 
   const token = authorization?.startsWith("Bearer ")
@@ -16,10 +16,6 @@ export const authMiddleware = async ({
     : authorization;
 
   const payload = await verifyJwt(token);
-
-  if (!payload) {
-    throw error("Unauthorized");
-  }
 
   return {
     user: {

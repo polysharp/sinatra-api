@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { Forbidden, NotFound } from "@/helpers/HttpError";
 import { generateDnsKey, verifyDnsKey } from "@/helpers/verify-dns-key";
 
 import { getWorkspaceUser } from "../workspace-users/workspace-users.service";
@@ -17,7 +18,7 @@ export const createDomainService = async (payload: CreateDomainInput) => {
 
   const workspaceUser = await getWorkspaceUser(workspaceId, userId);
   if (!workspaceUser.length) {
-    throw new Error("Workspace does not belong to user");
+    throw new Forbidden("Workspace does not belong to user");
   }
 
   const [domainCreated] = await db
@@ -39,7 +40,7 @@ export const getUserWorkspaceDomains = async (
 ) => {
   const workspaceUser = await getWorkspaceUser(workspaceId, userId);
   if (!workspaceUser.length) {
-    throw new Error("Workspace does not belong to user");
+    throw new Forbidden("Workspace does not belong to user");
   }
 
   const domains = await db
@@ -62,12 +63,12 @@ export const verifyDnsService = async (domainId: string, userId: string) => {
     .limit(1);
 
   if (!domain.length) {
-    throw new Error("Domain not found");
+    throw new NotFound("Domain not found");
   }
 
   const workspaceUser = await getWorkspaceUser(domain[0].workspaceId, userId);
   if (!workspaceUser.length) {
-    throw new Error("Workspace does not belong to user");
+    throw new Forbidden("Workspace does not belong to user");
   }
 
   const domainVerified = await verifyDnsKey(

@@ -2,6 +2,8 @@ import { type JWTPayload, jwtVerify, SignJWT } from "jose";
 
 import config from "@/config";
 
+import { Unauthorized } from "./HttpError";
+
 const SECRET_KEY = new Uint8Array(Buffer.from(config.JWT_SECRET, "utf-8"));
 
 export interface JwtPayload extends JWTPayload {
@@ -21,11 +23,11 @@ export async function createJwt(
     .sign(SECRET_KEY);
 }
 
-export async function verifyJwt(token: string): Promise<JwtPayload | null> {
+export async function verifyJwt(token: string): Promise<JwtPayload> {
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     return payload as JwtPayload;
   } catch (error) {
-    return null;
+    throw new Unauthorized("Invalid token");
   }
 }

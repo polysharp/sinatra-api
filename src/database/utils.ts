@@ -1,11 +1,14 @@
-import { Kind, type TObject } from "@sinclair/typebox";
-import type { Table } from "drizzle-orm";
 import {
   type BuildInsertSchema,
   type BuildSelectSchema,
   createInsertSchema,
   createSelectSchema,
 } from "drizzle-typebox";
+
+import { InternalServerError } from "@/helpers/HttpError";
+import { Kind, type TObject } from "@sinclair/typebox";
+
+import type { Table } from "drizzle-orm";
 
 type Spread<
   T extends TObject | Table,
@@ -49,7 +52,7 @@ export const spread = <
       break;
 
     default:
-      if (!(Kind in schema)) throw new Error("Expect a schema");
+      if (!(Kind in schema)) throw new InternalServerError();
       table = schema;
   }
 

@@ -13,19 +13,14 @@ export default new Elysia().group("/api-keys", (app) => {
     .post(
       "/",
       async ({ user, body: { name, workspaceId, value } }) => {
-        try {
-          const apiKeyCreated = await createApiKey({
-            userId: user.id,
-            workspaceId,
-            name,
-            value,
-          });
+        const apiKeyCreated = await createApiKey({
+          userId: user.id,
+          workspaceId,
+          name,
+          value,
+        });
 
-          return apiKeyCreated;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        return apiKeyCreated;
       },
       {
         body: t.Object({
@@ -38,17 +33,12 @@ export default new Elysia().group("/api-keys", (app) => {
     .get(
       "/",
       async ({ user, query: { workspaceId } }) => {
-        try {
-          const apiKeysFromDb = await getUserWorkspaceApiKeys(
-            user.id,
-            workspaceId,
-          );
+        const apiKeysFromDb = await getUserWorkspaceApiKeys(
+          user.id,
+          workspaceId,
+        );
 
-          return apiKeysFromDb;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        return apiKeysFromDb;
       },
       {
         query: t.Object({

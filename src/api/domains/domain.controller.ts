@@ -17,18 +17,13 @@ export default new Elysia().group("/domains", (app) => {
     .post(
       "/",
       async ({ user, body: { name: domainName, workspaceId } }) => {
-        try {
-          const domainCreated = await createDomainService({
-            userId: user.id,
-            workspaceId,
-            domainName,
-          });
+        const domainCreated = await createDomainService({
+          userId: user.id,
+          workspaceId,
+          domainName,
+        });
 
-          return domainCreated;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        return domainCreated;
       },
       {
         body: t.Object({
@@ -40,17 +35,12 @@ export default new Elysia().group("/domains", (app) => {
     .get(
       "/",
       async ({ user, query: { workspaceId } }) => {
-        try {
-          const domainsFromDb = await getUserWorkspaceDomains(
-            user.id,
-            workspaceId,
-          );
+        const domainsFromDb = await getUserWorkspaceDomains(
+          user.id,
+          workspaceId,
+        );
 
-          return domainsFromDb;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        return domainsFromDb;
       },
       {
         query: t.Object({
@@ -61,14 +51,9 @@ export default new Elysia().group("/domains", (app) => {
     .patch(
       "/:domainId/verify",
       async ({ user, params: { domainId } }) => {
-        try {
-          const domainUpdated = await verifyDnsService(domainId, user.id);
+        const domainUpdated = await verifyDnsService(domainId, user.id);
 
-          return domainUpdated;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        return domainUpdated;
       },
       {
         params: t.Object({

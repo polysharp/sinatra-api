@@ -26,11 +26,7 @@ export const signInService = async (
   userFromDb: typeof schemas.user.$inferSelect,
   password: string,
 ) => {
-  const passwordVerified = await verifyPassword(password, userFromDb.password);
-
-  if (!passwordVerified) {
-    return { user: null, token: null };
-  }
+  await verifyPassword(password, userFromDb.password);
 
   const token = await createJwt({
     userId: userFromDb.id,

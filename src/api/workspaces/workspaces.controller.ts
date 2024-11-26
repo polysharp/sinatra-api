@@ -1,4 +1,4 @@
-import { Elysia, error, t } from "elysia";
+import { Elysia, t } from "elysia";
 
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
@@ -17,15 +17,10 @@ export default new Elysia().group("/workspaces", (app) => {
     .post(
       "/",
       async ({ user, set, body }) => {
-        try {
-          const workspaceCreated = await createWorkspace(body.name, user.id);
+        const workspaceCreated = await createWorkspace(body.name, user.id);
 
-          set.status = 201;
-          return workspaceCreated;
-        } catch (err) {
-          console.error(err);
-          return error(400);
-        }
+        set.status = 201;
+        return workspaceCreated;
       },
       {
         body: t.Object({
@@ -34,29 +29,18 @@ export default new Elysia().group("/workspaces", (app) => {
       },
     )
     .get("/", async ({ user }) => {
-      try {
-        const workspacesFromDb = await getUserWorkspaces(user.id);
+      const workspacesFromDb = await getUserWorkspaces(user.id);
 
-        return workspacesFromDb;
-      } catch (err) {
-        console.error(err);
-        return error(404);
-      }
+      return workspacesFromDb;
     })
     .get(
       "/:workspaceId",
       async ({ user, params: { workspaceId } }) => {
-        try {
-          const workspaceFromDb = await getUserWorkspaceById(
-            user.id,
-            workspaceId,
-          );
-
-          return workspaceFromDb;
-        } catch (err) {
-          console.error(err);
-          return error(404);
-        }
+        const workspaceFromDb = await getUserWorkspaceById(
+          user.id,
+          workspaceId,
+        );
+        return workspaceFromDb;
       },
       {
         params: t.Object({
@@ -64,5 +48,6 @@ export default new Elysia().group("/workspaces", (app) => {
         }),
       },
     );
+
   return app;
 });

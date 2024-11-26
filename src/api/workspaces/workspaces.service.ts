@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { Forbidden } from "@/helpers/HttpError";
 
 export const createWorkspace = async (name: string, userId: string) => {
   const [workspaceCreated] = await db
@@ -68,7 +69,7 @@ export const getUserWorkspaceById = async (
     .limit(1);
 
   if (!workspace.length) {
-    throw new Error("Workspace does not belong to user");
+    throw new Forbidden("Workspace does not belong to user");
   }
 
   return workspace[0];

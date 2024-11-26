@@ -1,3 +1,5 @@
+import { InternalServerError, Unauthorized } from "./HttpError";
+
 export async function hashPassword(password: string): Promise<string> {
   try {
     const hashedPassword = await Bun.password.hash(password, {
@@ -6,24 +8,25 @@ export async function hashPassword(password: string): Promise<string> {
     });
     return hashedPassword;
   } catch (error) {
-    console.error("Error hashing password:", error);
-    throw new Error("Failed to hash password");
+    throw new InternalServerError();
   }
 }
 
 export async function verifyPassword(
   password: string,
   hashedPassword: string,
-): Promise<boolean> {
+): Promise<void> {
   try {
     const isValid = await Bun.password.verify(
       password,
       hashedPassword,
       "bcrypt",
     );
-    return isValid;
+
+    if (!isValid) {
+      throw new Unauthorized("Invalid credentials");
+    }
   } catch (error) {
-    console.error("Error verifying password:", error);
-    return false;
+    throw new Unauthorized("Invalid credentials");
   }
 }
