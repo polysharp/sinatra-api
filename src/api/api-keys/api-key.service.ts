@@ -3,9 +3,8 @@ import { eq } from "drizzle-orm";
 import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { encrypt } from "@/helpers/crypto";
-import { Forbidden } from "@/helpers/HttpError";
 
-import { getWorkspaceUser } from "../workspace-users/workspace-users.service";
+import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
 
 type CreateApiKeyInput = {
   name: string;
@@ -17,10 +16,7 @@ type CreateApiKeyInput = {
 export const createApiKey = async (payload: CreateApiKeyInput) => {
   const { userId, workspaceId, name, value } = payload;
 
-  const workspaceUser = await getWorkspaceUser(workspaceId, userId);
-  if (!workspaceUser.length) {
-    throw new Forbidden("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(workspaceId, userId);
 
   const cipheredValue = encrypt(value);
 
@@ -46,10 +42,7 @@ export const getUserWorkspaceApiKeys = async (
   userId: string,
   workspaceId: string,
 ) => {
-  const workspaceUser = await getWorkspaceUser(workspaceId, userId);
-  if (!workspaceUser.length) {
-    throw new Forbidden("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(workspaceId, userId);
 
   const apiKeys = await db
     .select({

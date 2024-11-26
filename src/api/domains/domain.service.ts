@@ -2,10 +2,10 @@ import { eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
-import { Forbidden, NotFound } from "@/helpers/HttpError";
+import { NotFound } from "@/helpers/HttpError";
 import { generateDnsKey, verifyDnsKey } from "@/helpers/verify-dns-key";
 
-import { getWorkspaceUser } from "../workspace-users/workspace-users.service";
+import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
 
 type CreateDomainInput = {
   userId: string;
@@ -16,10 +16,7 @@ type CreateDomainInput = {
 export const createDomainService = async (payload: CreateDomainInput) => {
   const { userId, workspaceId, domainName } = payload;
 
-  const workspaceUser = await getWorkspaceUser(workspaceId, userId);
-  if (!workspaceUser.length) {
-    throw new Forbidden("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(workspaceId, userId);
 
   const [domainCreated] = await db
     .insert(schemas.domain)
@@ -38,10 +35,7 @@ export const getUserWorkspaceDomains = async (
   userId: string,
   workspaceId: string,
 ) => {
-  const workspaceUser = await getWorkspaceUser(workspaceId, userId);
-  if (!workspaceUser.length) {
-    throw new Forbidden("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(workspaceId, userId);
 
   const domains = await db
     .select()
@@ -66,10 +60,7 @@ export const verifyDnsService = async (domainId: string, userId: string) => {
     throw new NotFound("Domain not found");
   }
 
-  const workspaceUser = await getWorkspaceUser(domain[0].workspaceId, userId);
-  if (!workspaceUser.length) {
-    throw new Forbidden("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(domain[0].workspaceId, userId);
 
   const domainVerified = await verifyDnsKey(
     domain[0].name,

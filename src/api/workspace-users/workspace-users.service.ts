@@ -2,9 +2,13 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { Forbidden } from "@/helpers/HttpError";
 
-export const getWorkspaceUser = async (workspaceId: string, userId: string) => {
-  return await db
+export const workspaceBelongsToUser = async (
+  workspaceId: string,
+  userId: string,
+) => {
+  const workspaceUser = await db
     .select()
     .from(schemas.workspaceUser)
     .where(
@@ -14,6 +18,10 @@ export const getWorkspaceUser = async (workspaceId: string, userId: string) => {
       ),
     )
     .limit(1);
+
+  if (!workspaceUser.length) {
+    throw new Forbidden("Workspace does not belong to user");
+  }
 };
 
 export const getUserWorkspaces = async (userId: string) => {
