@@ -1,4 +1,4 @@
-import Elysia, { error, t } from "elysia";
+import Elysia, { t } from "elysia";
 
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
