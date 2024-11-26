@@ -16,17 +16,9 @@ export async function verifyPassword(
   password: string,
   hashedPassword: string,
 ): Promise<void> {
-  try {
-    const isValid = await Bun.password.verify(
-      password,
-      hashedPassword,
-      "bcrypt",
-    );
+  const isValid = await Bun.password.verify(password, hashedPassword, "bcrypt");
 
-    if (!isValid) {
-      throw new Unauthorized("Invalid credentials");
-    }
-  } catch (error) {
+  if (!isValid) {
     throw new Unauthorized("Invalid credentials");
   }
 }
