@@ -48,27 +48,33 @@ export const getUserWorkspaceDomains = async (
 export const verifyDnsService = async (domainId: string, userId: string) => {
   const domain = await db
     .select({
-      name: schemas.domain.name,
-      verificationKey: schemas.domain.verificationKey,
-      workspaceId: schemas.domain.workspaceId,
+      domainName: schemas.domain.name,
+      domainVerifivationKey: schemas.domain.verificationKey,
     })
     .from(schemas.domain)
-    .where(eq(schemas.domain.id, domainId))
+    .innerJoin(
+      schemas.workspace,
+      eq(schemas.domain.workspaceId, schemas.workspace.id),
+    )
+    .innerJoin(
+      schemas.workspaceUser,
+      eq(schemas.workspace.id, schemas.workspaceUser.workspaceId),
+    )
+    .where(
+      and(
+        eq(schemas.domain.id, domainId),
+        eq(schemas.workspaceUser.userId, userId),
+      ),
+    )
     .limit(1);
 
   if (!domain.length) {
     throw new NotFound("Domain not found");
   }
 
-  await workspaceBelongsToUser(
-    domain[0].workspaceId,
-    userId,
-    "Domain does not belong to user",
-  );
-
   const domainVerified = await verifyDnsKey(
-    domain[0].name,
-    domain[0].verificationKey,
+    domain[0].domainName,
+    domain[0].domainVerifivationKey,
   );
 
   const domainUpdated = await db

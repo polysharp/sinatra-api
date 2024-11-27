@@ -7,7 +7,6 @@ import { Forbidden } from "@/helpers/HttpError";
 export const workspaceBelongsToUser = async (
   workspaceId: string,
   userId: string,
-  errorMsg?: string,
 ) => {
   const workspaceUser = await db
     .select()
@@ -21,7 +20,7 @@ export const workspaceBelongsToUser = async (
     .limit(1);
 
   if (!workspaceUser.length) {
-    throw new Forbidden(errorMsg || "Workspace does not belong to user", {
+    throw new Forbidden("Workspace does not belong to user", {
       workspaceId,
       userId,
     });
