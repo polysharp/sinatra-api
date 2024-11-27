@@ -1,5 +1,5 @@
 {
-  "id": "3691f161-e35f-436e-afaa-b7087eed69db",
+  "id": "9ffe2fe6-9526-427f-ae94-e7058ee19272",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -177,6 +177,12 @@
           "name": "id",
           "type": "varchar",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
           "notNull": true
         },
         "workspace_id": {

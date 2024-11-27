@@ -13,6 +13,7 @@ export const site = pgTable(
       .$defaultFn(() => createId())
       .primaryKey()
       .unique(),
+    name: varchar().notNull(),
     workspaceId: varchar()
       .notNull()
       .references(() => workspace.id),

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS "domains" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "sites" (
 	"id" varchar PRIMARY KEY NOT NULL,
+	"name" varchar NOT NULL,
 	"workspace_id" varchar NOT NULL,
 	"domain_id" varchar NOT NULL,
 	"api_key_id" varchar NOT NULL,

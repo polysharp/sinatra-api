@@ -9,6 +9,7 @@ import { domainExistsAndValid } from "../domains/domain.service";
 import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
 
 type CreateSiteInput = {
+  name: string;
   userId: string;
   workspaceId: string;
   domainId: string;
@@ -16,7 +17,7 @@ type CreateSiteInput = {
 };
 
 export const createSiteService = async (payload: CreateSiteInput) => {
-  const { workspaceId, domainId, apiKeyId, userId } = payload;
+  const { name, workspaceId, domainId, apiKeyId, userId } = payload;
 
   await workspaceBelongsToUser(workspaceId, userId);
   await apiKeyExists(apiKeyId, workspaceId);
@@ -25,6 +26,7 @@ export const createSiteService = async (payload: CreateSiteInput) => {
   const [siteCreated] = await db
     .insert(schemas.site)
     .values({
+      name,
       workspaceId,
       domainId,
       apiKeyId,

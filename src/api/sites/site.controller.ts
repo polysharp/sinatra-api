@@ -27,6 +27,7 @@ export default new Elysia().group("/sites", (app) => {
       },
       {
         body: t.Object({
+          name: site.name,
           workspaceId: site.workspaceId,
           domainId: site.domainId,
           apiKeyId: site.apiKeyId,
