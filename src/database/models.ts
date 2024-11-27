@@ -23,7 +23,7 @@ export const models = {
     insert: spreads(
       {
         domain: createInsertSchema(schemas.domain, {
-          name: t.String({ format: "hostname" }),
+          name: t.RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]{1,63}\.)+[a-zA-Z]{2,}$/),
         }),
       },
       "insert",
@@ -31,7 +31,7 @@ export const models = {
     select: spreads(
       {
         domain: createSelectSchema(schemas.domain, {
-          name: t.String({ format: "hostname" }),
+          name: t.RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]{1,63}\.)+[a-zA-Z]{2,}$/),
         }),
       },
       "select",
