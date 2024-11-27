@@ -1,7 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { NotFound } from "@/helpers/HttpError";
+
+import { apiKeyExists } from "../api-keys/api-key.service";
+import { domainExistsAndValid } from "../domains/domain.service";
+import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
 
 type CreateSiteInput = {
   userId: string;
@@ -13,36 +18,9 @@ type CreateSiteInput = {
 export const createSiteService = async (payload: CreateSiteInput) => {
   const { workspaceId, domainId, apiKeyId, userId } = payload;
 
-  if (!userId) {
-    throw new Error("UserId is required");
-  }
-
-  const workspaceExists = await db
-    .select({
-      workspaceId: schemas.workspace.id,
-    })
-    .from(schemas.workspace)
-    .where(eq(schemas.workspace.id, workspaceId))
-    .limit(1);
-
-  if (!workspaceExists.length) {
-    throw new Error("Workspace not found");
-  }
-
-  const workspaceBelongsToUser = await db
-    .select()
-    .from(schemas.workspaceUser)
-    .where(
-      and(
-        eq(schemas.workspaceUser.workspaceId, workspaceId),
-        eq(schemas.workspaceUser.userId, userId),
-      ),
-    )
-    .limit(1);
-
-  if (!workspaceBelongsToUser.length) {
-    throw new Error("Workspace does not belong to user");
-  }
+  await workspaceBelongsToUser(workspaceId, userId);
+  await apiKeyExists(apiKeyId, workspaceId);
+  await domainExistsAndValid(domainId, workspaceId);
 
   const [siteCreated] = await db
     .insert(schemas.site)
@@ -56,57 +34,33 @@ export const createSiteService = async (payload: CreateSiteInput) => {
   return siteCreated;
 };
 
-// export const verifyDnsService = async (payload: VerifyDnsInput) => {
-//     const { siteId, userId } = payload;
+export const getSitesService = async (workspaceId: string, userId: string) => {
+  await workspaceBelongsToUser(workspaceId, userId);
 
-//     if (!userId) {
-//         throw new Error("UserId is required");
-//     }
+  const sites = await db
+    .select()
+    .from(schemas.site)
+    .where(eq(schemas.site.workspaceId, workspaceId));
 
-//     if (!siteId) {
-//         throw new Error("SiteId is required");
-//     }
+  return sites;
+};
 
-//     const [site] = await db.select().from(schemas.sites).where(
-//         eq(schemas.sites.id, siteId),
-//     ).limit(1);
+export const getSiteByIdService = async (
+  siteId: string,
+  workspaceId: string,
+  userId: string,
+) => {
+  await workspaceBelongsToUser(workspaceId, userId);
 
-//     if (!site) {
-//         throw new Error("Site not found");
-//     }
+  const sites = await db
+    .select()
+    .from(schemas.site)
+    .where(eq(schemas.site.id, siteId))
+    .limit(1);
 
-//     if (site.dnsVerificationStatus === "verified") {
-//         return { status: "verified" };
-//     }
+  if (!sites.length) {
+    throw new NotFound("Site not found");
+  }
 
-//     const [customerBelongsToUser] = await db.select().from(
-//         schemas.userCustomers,
-//     )
-//         .where(
-//             and(
-//                 eq(schemas.userCustomers.customerId, site.customerId),
-//                 eq(schemas.userCustomers.userId, userId),
-//             ),
-//         );
-
-//     if (!customerBelongsToUser) {
-//         throw new Error("Site does not belong to user");
-//     }
-
-//     if (customerBelongsToUser.customerId !== site.customerId) {
-//         throw new Error("Site does not belong to customer");
-//     }
-
-//     const dnsKeyVerifies = await verifyDnsKey(
-//         site.domain,
-//         site.dnsVerificationKey,
-//     );
-
-//     const [updatedSite] = await db.update(schemas.sites).set({
-//         dnsVerificationStatus: dnsKeyVerifies ? "verified" : "failed",
-//     }).where(eq(schemas.sites.id, siteId)).returning({
-//         dnsVerificationStatus: schemas.sites.dnsVerificationStatus,
-//     });
-
-//     return { status: updatedSite.dnsVerificationStatus };
-// };
+  return sites[0];
+};

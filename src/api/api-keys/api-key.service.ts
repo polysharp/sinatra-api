@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { encrypt } from "@/helpers/crypto";
+import { BadRequest } from "@/helpers/HttpError";
 
 import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
 
@@ -56,4 +57,20 @@ export const getUserWorkspaceApiKeys = async (
     .where(eq(schemas.apiKey.workspaceId, workspaceId));
 
   return apiKeys;
+};
+
+export const apiKeyExists = async (apiKeyId: string, workspaceId: string) => {
+  const apiKey = await db
+    .select()
+    .from(schemas.apiKey)
+    .where(
+      and(
+        eq(schemas.apiKey.id, apiKeyId),
+        eq(schemas.apiKey.workspaceId, workspaceId),
+      ),
+    );
+
+  if (!apiKey.length) {
+    throw new BadRequest("API Key does not exist");
+  }
 };

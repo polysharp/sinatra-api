@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
-import { NotFound } from "@/helpers/HttpError";
+import { BadRequest, Forbidden, NotFound } from "@/helpers/HttpError";
 import { generateDnsKey, verifyDnsKey } from "@/helpers/verify-dns-key";
 
 import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
@@ -60,7 +60,11 @@ export const verifyDnsService = async (domainId: string, userId: string) => {
     throw new NotFound("Domain not found");
   }
 
-  await workspaceBelongsToUser(domain[0].workspaceId, userId);
+  await workspaceBelongsToUser(
+    domain[0].workspaceId,
+    userId,
+    "Domain does not belong to user",
+  );
 
   const domainVerified = await verifyDnsKey(
     domain[0].name,
@@ -71,9 +75,36 @@ export const verifyDnsService = async (domainId: string, userId: string) => {
     .update(schemas.domain)
     .set({
       verificationStatus: domainVerified ? "VERIFIED" : "FAILED",
+      verifiedAt: new Date(),
     })
     .where(eq(schemas.domain.id, domainId))
     .returning();
 
   return domainUpdated;
+};
+
+export const domainExistsAndValid = async (
+  domainId: string,
+  workspaceId: string,
+) => {
+  const domain = await db
+    .select({
+      verificationStatus: schemas.domain.verificationStatus,
+    })
+    .from(schemas.domain)
+    .where(
+      and(
+        eq(schemas.domain.id, domainId),
+        eq(schemas.domain.workspaceId, workspaceId),
+      ),
+    )
+    .limit(1);
+
+  if (!domain.length) {
+    throw new BadRequest("Domain does not exist");
+  }
+
+  if (domain[0].verificationStatus !== "VERIFIED") {
+    throw new Forbidden("Domain is not verified");
+  }
 };

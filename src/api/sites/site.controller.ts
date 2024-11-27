@@ -1,55 +1,67 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
+
+import { models } from "@/database/models";
+import { authMiddleware } from "@/hooks/auth.handler";
+
+import {
+  createSiteService,
+  getSiteByIdService,
+  getSitesService,
+} from "./site.service";
+
+const { site } = models.site.select;
 
 export default new Elysia().group("/sites", (app) => {
-  // app
-  //     .derive(async ({ headers: { authorization } }) => {
-  //         const user = await authHandler(authorization);
-  //         if (!user) {
-  //             return error("Unauthorized");
-  //         }
+  app
+    .derive(authMiddleware)
+    .post(
+      "/",
+      async ({ user, set, body }) => {
+        const siteCreated = await createSiteService({
+          userId: user.id,
+          ...body,
+        });
 
-  //         return {
-  //             user: {
-  //                 id: user.userId,
-  //                 email: user.email,
-  //             },
-  //         };
-  //     })
-  //     .post("/", async ({ user, set, body }) => {
-  //         try {
-  //             const siteCreated = await createSiteService({
-  //                 userId: user.id,
-  //                 ...body,
-  //             });
+        set.status = 201;
+        return siteCreated;
+      },
+      {
+        body: t.Object({
+          workspaceId: site.workspaceId,
+          domainId: site.domainId,
+          apiKeyId: site.apiKeyId,
+        }),
+      },
+    )
+    .get(
+      "/",
+      async ({ user, query: { workspaceId } }) => {
+        const sites = await getSitesService(workspaceId, user.id);
 
-  //             set.status = 201;
-  //             return siteCreated;
-  //         } catch (err) {
-  //             console.error(err);
-  //             return error(400);
-  //         }
-  //     }, {
-  //         body: t.Object({
-  //             workspaceId: site.workspaceId,
-  //             domainId: site.domainId,
-  //             apiKey: site.apiKey,
-  //         }),
-  //     }).patch("/verify-dns", async ({ user, set, body: { siteId } }) => {
-  //         try {
-  //             const result = await verifyDnsService({
-  //                 siteId,
-  //                 userId: user.id,
-  //             });
-  //             set.status = 200;
-  //             return result;
-  //         } catch (err) {
-  //             console.error(err);
-  //             return error(400);
-  //         }
-  //     }, {
-  //         body: t.Object({
-  //             siteId: t.Number({ minimum: 1 }),
-  //         }),
-  //     });
+        return sites;
+      },
+      {
+        query: t.Object({
+          workspaceId: site.workspaceId,
+        }),
+      },
+    )
+    .get(
+      "/:siteId",
+      async ({ user, query: { workspaceId }, params: { siteId } }) => {
+        const sites = await getSiteByIdService(siteId, workspaceId, user.id);
+
+        return sites;
+      },
+      {
+        params: t.Object({
+          siteId: site.id,
+        }),
+        query: t.Object({
+          workspaceId: site.workspaceId,
+        }),
+      },
+    );
+
   return app;
 });
