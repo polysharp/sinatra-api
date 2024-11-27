@@ -3,11 +3,7 @@ import Elysia, { t } from "elysia";
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import {
-  createDomainService,
-  getUserWorkspaceDomains,
-  verifyDnsService,
-} from "./domain.service";
+import DomainService from "./domain.service";
 
 const { domain } = models.domain.select;
 
@@ -17,7 +13,7 @@ export default new Elysia().group("/domains", (app) => {
     .post(
       "/",
       async ({ user, body: { name: domainName, workspaceId } }) => {
-        const domainCreated = await createDomainService({
+        const domainCreated = await DomainService.createDomain({
           userId: user.id,
           workspaceId,
           domainName,
@@ -35,7 +31,7 @@ export default new Elysia().group("/domains", (app) => {
     .get(
       "/",
       async ({ user, query: { workspaceId } }) => {
-        const domainsFromDb = await getUserWorkspaceDomains(
+        const domainsFromDb = await DomainService.getUserWorkspaceDomains(
           user.id,
           workspaceId,
         );
@@ -51,7 +47,7 @@ export default new Elysia().group("/domains", (app) => {
     .patch(
       "/:domainId/verify",
       async ({ user, params: { domainId } }) => {
-        const domainUpdated = await verifyDnsService(domainId, user.id);
+        const domainUpdated = await DomainService.verifyDns(domainId, user.id);
 
         return domainUpdated;
       },

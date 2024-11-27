@@ -3,7 +3,7 @@ import Elysia, { t } from "elysia";
 import { models } from "@/database/models";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import { createApiKey, getUserWorkspaceApiKeys } from "./api-key.service";
+import ApiKeyService from "./api-key.service";
 
 const { apiKey } = models.apiKey.select;
 
@@ -13,7 +13,7 @@ export default new Elysia().group("/api-keys", (app) => {
     .post(
       "/",
       async ({ user, body: { name, workspaceId, value } }) => {
-        const apiKeyCreated = await createApiKey({
+        const apiKeyCreated = await ApiKeyService.createApiKey({
           userId: user.id,
           workspaceId,
           name,
@@ -33,7 +33,7 @@ export default new Elysia().group("/api-keys", (app) => {
     .get(
       "/",
       async ({ user, query: { workspaceId } }) => {
-        const apiKeysFromDb = await getUserWorkspaceApiKeys(
+        const apiKeysFromDb = await ApiKeyService.getUserWorkspaceApiKeys(
           user.id,
           workspaceId,
         );

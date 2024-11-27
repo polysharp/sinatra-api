@@ -2,8 +2,8 @@ import { Elysia, t } from "elysia";
 
 import { models } from "@/database/models";
 
-import { getUserWithEmail } from "../users/user.service";
-import { signInService, signUpService } from "./auth.service";
+import UserService from "../users/user.service";
+import AuthService from "./auth.service";
 
 const { user } = models.user.insert;
 
@@ -15,16 +15,16 @@ export default new Elysia().group("/auth", (app) => {
 
       let user, token;
 
-      const userFromDb = await getUserWithEmail(email, true);
+      const userFromDb = await UserService.getUserWithEmail(email, true);
       if (userFromDb) {
-        const signInRes = await signInService(userFromDb, password);
+        const signInRes = await AuthService.signIn(userFromDb, password);
 
         user = signInRes.user;
         token = signInRes.token;
 
         set.status = 200;
       } else {
-        const signUpRes = await signUpService(email, password);
+        const signUpRes = await AuthService.signUp(email, password);
 
         user = signUpRes.user;
         token = signUpRes.token;

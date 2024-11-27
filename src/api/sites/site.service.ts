@@ -4,9 +4,9 @@ import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { NotFound } from "@/helpers/HttpError";
 
-import { apiKeyExists } from "../api-keys/api-key.service";
-import { domainExistsAndValid } from "../domains/domain.service";
-import { workspaceBelongsToUser } from "../workspace-users/workspace-users.service";
+import ApiKeyService from "../api-keys/api-key.service";
+import DomainService from "../domains/domain.service";
+import WorkspaceUserService from "../workspace-users/workspace-users.service";
 
 type CreateSiteInput = {
   name: string;
@@ -19,9 +19,9 @@ type CreateSiteInput = {
 export const createSiteService = async (payload: CreateSiteInput) => {
   const { name, workspaceId, domainId, apiKeyId, userId } = payload;
 
-  await workspaceBelongsToUser(workspaceId, userId);
-  await apiKeyExists(apiKeyId, workspaceId);
-  await domainExistsAndValid(domainId, workspaceId);
+  await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
+  await ApiKeyService.apiKeyExists(apiKeyId, workspaceId);
+  await DomainService.domainExistsAndValid(domainId, workspaceId);
 
   const [siteCreated] = await db
     .insert(schemas.site)
@@ -37,7 +37,7 @@ export const createSiteService = async (payload: CreateSiteInput) => {
 };
 
 export const getSitesService = async (workspaceId: string, userId: string) => {
-  await workspaceBelongsToUser(workspaceId, userId);
+  await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
 
   const sites = await db
     .select()
@@ -52,7 +52,7 @@ export const getSiteByIdService = async (
   workspaceId: string,
   userId: string,
 ) => {
-  await workspaceBelongsToUser(workspaceId, userId);
+  await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
 
   const sites = await db
     .select()
