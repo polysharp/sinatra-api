@@ -4,7 +4,7 @@ import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { Forbidden } from "@/helpers/HttpError";
 
-export default abstract class WorkspaceService {
+export default abstract class WorkspaceUserService {
   /**
    * Checks if a workspace belongs to a specific user.
    * @param workspaceId {string} - The ID of the workspace.
