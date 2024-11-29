@@ -164,6 +164,11 @@ export default abstract class ApiKeyService {
     await this.apiKeyExists(apiKeyId, workspaceId);
 
     await db
+      .update(schemas.site)
+      .set({ enabled: false })
+      .where(eq(schemas.site.apiKeyId, apiKeyId));
+
+    await db
       .delete(schemas.apiKey)
       .where(
         and(
