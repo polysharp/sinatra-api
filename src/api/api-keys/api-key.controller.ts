@@ -78,11 +78,7 @@ export default new Elysia().group("/api-keys", (app) => {
     .delete(
       "/:apiKeyId",
       async ({ user, params: { apiKeyId }, query: { workspaceId } }) => {
-        const deletedApiKey = await ApiKeyService.deleteApiKey(
-          apiKeyId,
-          user.id,
-          workspaceId,
-        );
+        await ApiKeyService.deleteApiKey(apiKeyId, user.id, workspaceId);
 
         return { message: "API key deleted" };
       },
