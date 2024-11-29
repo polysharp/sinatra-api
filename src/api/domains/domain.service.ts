@@ -136,6 +136,7 @@ export default abstract class DomainService {
   /**
    * Updates a domain's details if the user has the ADMIN role.
    * If the domain name is updated, the verification status is set to pending and a new verification key is generated.
+   * Additionally, all associated sites are disabled.
    * @param payload {object} - Contains domainId, userId, workspaceId, and domainName.
    * @returns The updated domain.
    */
@@ -176,6 +177,11 @@ export default abstract class DomainService {
       updateFields.name = domainName;
       updateFields.verificationStatus = "PENDING";
       updateFields.verificationKey = generateDnsKey();
+
+      await db
+        .update(schemas.site)
+        .set({ enabled: false })
+        .where(eq(schemas.site.domainId, domainId));
     }
 
     if (Object.keys(updateFields).length === 0) {
