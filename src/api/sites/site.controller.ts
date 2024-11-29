@@ -4,11 +4,7 @@ import { models } from "@/database/models";
 import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
-import {
-  createSiteService,
-  getSiteByIdService,
-  getSitesService,
-} from "./site.service";
+import SiteService from "./site.service";
 
 const { site } = models.site.select;
 
@@ -19,7 +15,7 @@ export default new Elysia().group("/sites", (app) => {
     .post(
       "/",
       async ({ user, set, body }) => {
-        const siteCreated = await createSiteService({
+        const siteCreated = await SiteService.createSite({
           userId: user.id,
           ...body,
         });
@@ -39,7 +35,7 @@ export default new Elysia().group("/sites", (app) => {
     .get(
       "/",
       async ({ user, query: { workspaceId } }) => {
-        const sites = await getSitesService(workspaceId, user.id);
+        const sites = await SiteService.getSites(workspaceId, user.id);
 
         return sites;
       },
@@ -52,7 +48,11 @@ export default new Elysia().group("/sites", (app) => {
     .get(
       "/:siteId",
       async ({ user, query: { workspaceId }, params: { siteId } }) => {
-        const sites = await getSiteByIdService(siteId, workspaceId, user.id);
+        const sites = await SiteService.getSiteById(
+          siteId,
+          workspaceId,
+          user.id,
+        );
 
         return sites;
       },
@@ -62,6 +62,36 @@ export default new Elysia().group("/sites", (app) => {
         }),
         query: t.Object({
           workspaceId: site.workspaceId,
+        }),
+      },
+    )
+    .put(
+      "/:siteId",
+      async ({
+        user,
+        params: { siteId },
+        body: { workspaceId, apiKeyId, name },
+      }) => {
+        const updatedSite = await SiteService.updateSiteById({
+          siteId,
+          userId: user.id,
+          workspaceId,
+          updateData: {
+            name,
+            apiKeyId,
+          },
+        });
+
+        return updatedSite;
+      },
+      {
+        params: t.Object({
+          siteId: site.id,
+        }),
+        body: t.Object({
+          name: t.Optional(site.name),
+          workspaceId: site.workspaceId,
+          apiKeyId: t.Optional(site.apiKeyId),
         }),
       },
     );
