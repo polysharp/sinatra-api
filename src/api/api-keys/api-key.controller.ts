@@ -47,6 +47,53 @@ export default new Elysia().group("/api-keys", (app) => {
           workspaceId: apiKey.workspaceId,
         }),
       },
+    )
+    .put(
+      "/:apiKeyId",
+      async ({
+        user,
+        body: { name, value, workspaceId },
+        params: { apiKeyId },
+      }) => {
+        const updatedApiKey = await ApiKeyService.updateApiKey(
+          apiKeyId,
+          user.id,
+          workspaceId,
+          { name, value },
+        );
+
+        return updatedApiKey;
+      },
+      {
+        params: t.Object({
+          apiKeyId: apiKey.id,
+        }),
+        body: t.Object({
+          name: apiKey.name,
+          value: apiKey.name,
+          workspaceId: apiKey.workspaceId,
+        }),
+      },
+    )
+    .delete(
+      "/:apiKeyId",
+      async ({ user, params: { apiKeyId }, query: { workspaceId } }) => {
+        const deletedApiKey = await ApiKeyService.deleteApiKey(
+          apiKeyId,
+          user.id,
+          workspaceId,
+        );
+
+        return { message: "API key deleted" };
+      },
+      {
+        params: t.Object({
+          apiKeyId: apiKey.id,
+        }),
+        query: t.Object({
+          workspaceId: apiKey.workspaceId,
+        }),
+      },
     );
 
   return app;

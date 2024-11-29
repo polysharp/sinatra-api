@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { encrypt } from "@/helpers/crypto";
-import { BadRequest } from "@/helpers/HttpError";
+import { BadRequest, Forbidden } from "@/helpers/HttpError";
 
 import WorkspaceUserService from "../workspace-users/workspace-users.service";
 
@@ -88,5 +88,88 @@ export default abstract class ApiKeyService {
     if (!apiKey.length) {
       throw new BadRequest("API Key does not exist");
     }
+  }
+
+  /**
+   * Updates an existing API key.
+   * @param apiKeyId {string} The ID of the API key to update.
+   * @param userId {string} The ID of the user requesting the update.
+   * @param workspaceId {string} Workspace's ID.
+   * @param updateData {Partial<CreateApiKeyInput>} Data to update the API key with.
+   * @returns The updated API key.
+   * @throws {BadRequest} If the API key does not exist.
+   */
+  static async updateApiKey(
+    apiKeyId: string,
+    userId: string,
+    workspaceId: string,
+    updateData: Partial<CreateApiKeyInput>,
+  ) {
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden("User does not have permission to delete API key");
+    }
+
+    await this.apiKeyExists(apiKeyId, workspaceId);
+
+    if (updateData.value) {
+      updateData.value = encrypt(updateData.value);
+    }
+
+    const [updatedApiKey] = await db
+      .update(schemas.apiKey)
+      .set(updateData)
+      .where(
+        and(
+          eq(schemas.apiKey.id, apiKeyId),
+          eq(schemas.apiKey.workspaceId, workspaceId),
+        ),
+      )
+      .returning({
+        id: schemas.apiKey.id,
+        name: schemas.apiKey.name,
+        workspaceId: schemas.apiKey.workspaceId,
+        createdAt: schemas.apiKey.createdAt,
+        updatedAt: schemas.apiKey.updatedAt,
+      });
+
+    return updatedApiKey;
+  }
+
+  /**
+   * Deletes an API key if the requesting user has the ADMIN role.
+   * @param apiKeyId {string} The ID of the API key to delete.
+   * @param userId {string} The ID of the user requesting the deletion.
+   * @param workspaceId {string} Workspace's ID.
+   * @throws {Forbidden} If the user is not an ADMIN or the API key does not exist.
+   */
+  static async deleteApiKey(
+    apiKeyId: string,
+    userId: string,
+    workspaceId: string,
+  ) {
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden("User does not have permission to delete API key");
+    }
+
+    await this.apiKeyExists(apiKeyId, workspaceId);
+
+    await db
+      .delete(schemas.apiKey)
+      .where(
+        and(
+          eq(schemas.apiKey.id, apiKeyId),
+          eq(schemas.apiKey.workspaceId, workspaceId),
+        ),
+      );
   }
 }

@@ -55,4 +55,35 @@ export default abstract class WorkspaceUserService {
 
     return userWorkspaces.length ? userWorkspaces : [];
   }
+
+  /**
+   * Retrieves the role of a user in a specific workspace.
+   * @param workspaceId {string} - The ID of the workspace.
+   * @param userId {string} - The ID of the user.
+   * @returns The role of the user in the workspace.
+   * @throws {Forbidden} - If the user does not belong to the workspace.
+   */
+  static async getUserRoleInWorkspace(workspaceId: string, userId: string) {
+    const workspaceUser = await db
+      .select({
+        role: schemas.workspaceUser.role,
+      })
+      .from(schemas.workspaceUser)
+      .where(
+        and(
+          eq(schemas.workspaceUser.userId, userId),
+          eq(schemas.workspaceUser.workspaceId, workspaceId),
+        ),
+      )
+      .limit(1);
+
+    if (!workspaceUser.length) {
+      throw new Forbidden("User does not belong to the workspace", {
+        workspaceId,
+        userId,
+      });
+    }
+
+    return workspaceUser[0].role;
+  }
 }
