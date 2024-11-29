@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 
 import { models } from "@/database/models";
+import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
 import UserService from "./user.service";
@@ -10,6 +11,7 @@ const { workspace } = models.workspace.select;
 export default new Elysia().group("/users", (app) => {
   app
     .derive(authMiddleware)
+    .guard(authGuard)
     .get("/me", async ({ user }) => {
       const userFromDb = await UserService.getUserWithEmail(user.email);
 

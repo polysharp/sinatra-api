@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 
 import { models } from "@/database/models";
+import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
 import {
@@ -14,6 +15,7 @@ const { site } = models.site.select;
 export default new Elysia().group("/sites", (app) => {
   app
     .derive(authMiddleware)
+    .guard(authGuard)
     .post(
       "/",
       async ({ user, set, body }) => {

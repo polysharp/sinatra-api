@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 
 import { models } from "@/database/models";
+import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
 import WorkspaceUserService from "../workspace-users/workspace-users.service";
@@ -11,6 +12,7 @@ const { workspace } = models.workspace.select;
 export default new Elysia().group("/workspaces", (app) => {
   app
     .derive(authMiddleware)
+    .guard(authGuard)
     .post(
       "/",
       async ({ user, set, body }) => {

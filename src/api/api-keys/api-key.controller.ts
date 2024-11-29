@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 
 import { models } from "@/database/models";
+import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
 import ApiKeyService from "./api-key.service";
@@ -10,6 +11,7 @@ const { apiKey } = models.apiKey.select;
 export default new Elysia().group("/api-keys", (app) => {
   app
     .derive(authMiddleware)
+    .guard(authGuard)
     .post(
       "/",
       async ({ user, body: { name, workspaceId, value } }) => {

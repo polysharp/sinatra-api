@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 
 import { models } from "@/database/models";
+import authGuard from "@/hooks/auth.guard";
 import { authMiddleware } from "@/hooks/auth.handler";
 
 import DomainService from "./domain.service";
@@ -10,6 +11,7 @@ const { domain } = models.domain.select;
 export default new Elysia().group("/domains", (app) => {
   app
     .derive(authMiddleware)
+    .guard(authGuard)
     .post(
       "/",
       async ({ user, body: { name: domainName, workspaceId } }) => {
