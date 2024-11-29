@@ -132,4 +132,62 @@ export default abstract class DomainService {
       throw new Forbidden("Domain is not verified");
     }
   }
+
+  /**
+   * Updates a domain's details if the user has the ADMIN role.
+   * If the domain name is updated, the verification status is set to pending and a new verification key is generated.
+   * @param payload {object} - Contains domainId, userId, workspaceId, and domainName.
+   * @returns The updated domain.
+   */
+  static async updateDomain(payload: {
+    domainId: string;
+    userId: string;
+    workspaceId: string;
+    domainName: string;
+  }) {
+    const { domainId, userId, workspaceId, domainName } = payload;
+
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden("User does not have permission to update the domain");
+    }
+
+    const domain = await db
+      .select()
+      .from(schemas.domain)
+      .where(
+        and(
+          eq(schemas.domain.id, domainId),
+          eq(schemas.domain.workspaceId, workspaceId),
+        ),
+      )
+      .limit(1);
+
+    if (!domain.length) {
+      throw new NotFound("Domain not found");
+    }
+
+    const updateFields: any = {};
+    if (domainName && domainName !== domain[0].name) {
+      updateFields.name = domainName;
+      updateFields.verificationStatus = "PENDING";
+      updateFields.verificationKey = generateDnsKey();
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return domain[0];
+    }
+
+    const [updatedDomain] = await db
+      .update(schemas.domain)
+      .set(updateFields)
+      .where(eq(schemas.domain.id, domainId))
+      .returning();
+
+    return updatedDomain;
+  }
 }

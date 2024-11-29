@@ -58,6 +58,32 @@ export default new Elysia().group("/domains", (app) => {
           domainId: domain.id,
         }),
       },
+    )
+    .put(
+      "/:domainId",
+      async ({
+        user,
+        params: { domainId },
+        body: { name: domainName, workspaceId },
+      }) => {
+        const domainUpdated = await DomainService.updateDomain({
+          domainId,
+          userId: user.id,
+          workspaceId,
+          domainName,
+        });
+
+        return domainUpdated;
+      },
+      {
+        params: t.Object({
+          domainId: domain.id,
+        }),
+        body: t.Object({
+          name: domain.name,
+          workspaceId: domain.workspaceId,
+        }),
+      },
     );
 
   return app;
