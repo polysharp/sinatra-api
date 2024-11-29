@@ -21,12 +21,15 @@ export const createSiteService = async (payload: CreateSiteInput) => {
 
   await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
   await ApiKeyService.apiKeyExists(apiKeyId, workspaceId);
-  await DomainService.domainExistsAndValid(domainId, workspaceId);
+  const domain = await DomainService.domainExists(domainId, workspaceId);
+
+  const isDomainVerified = domain.verificationStatus === "VERIFIED";
 
   const [siteCreated] = await db
     .insert(schemas.site)
     .values({
       name,
+      enabled: isDomainVerified,
       workspaceId,
       domainId,
       apiKeyId,

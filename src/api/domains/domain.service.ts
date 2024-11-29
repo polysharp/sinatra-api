@@ -105,16 +105,15 @@ export default abstract class DomainService {
   }
 
   /**
-   * Validates whether a domain exists and is verified.
-   * @param domainId {string} - The domain's ID.
-   * @param workspaceId {string} - The workspace's ID.
-   * @throws {BadRequest | Forbidden} - If the domain doesn't exist or isn't verified.
+   * Checks if a domain exists in the specified workspace.
+   * @param domainId - The ID of the domain to check.
+   * @param workspaceId - The ID of the workspace to check within.
+   * @returns The domain object if it exists.
+   * @throws {BadRequest} If the domain does not exist.
    */
-  static async domainExistsAndValid(domainId: string, workspaceId: string) {
+  static async domainExists(domainId: string, workspaceId: string) {
     const domain = await db
-      .select({
-        verificationStatus: schemas.domain.verificationStatus,
-      })
+      .select()
       .from(schemas.domain)
       .where(
         and(
@@ -128,9 +127,7 @@ export default abstract class DomainService {
       throw new BadRequest("Domain does not exist");
     }
 
-    if (domain[0].verificationStatus !== "VERIFIED") {
-      throw new Forbidden("Domain is not verified");
-    }
+    return domain[0];
   }
 
   /**
