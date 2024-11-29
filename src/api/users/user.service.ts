@@ -3,6 +3,8 @@ import { eq, getTableColumns } from "drizzle-orm";
 import db from "@/database/database";
 import schemas from "@/database/schemas";
 
+import WorkspaceUserService from "../workspace-users/workspace-users.service";
+
 type WithoutPassword<T> = Omit<T, "password">;
 
 export default abstract class UserService {
@@ -38,11 +40,30 @@ export default abstract class UserService {
   }
 
   /**
-   * Fetches all users from the database.
-   * @returns A list of all user records.
+   * Retrieves a list of users associated with a specific workspace.
+   *
+   * @param workspaceId - The ID of the workspace to retrieve users from.
+   * @param userId - The ID of the user making the request.
+   * @returns A promise that resolves to an array of users
+   * @throws Will throw an error if the workspace does not belong to the user.
    */
-  static async getUsers() {
-    const users = await db.select().from(schemas.user);
+  static async getUsers(workspaceId: string, userId: string) {
+    await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
+
+    const users = await db
+      .select({
+        id: schemas.user.id,
+        email: schemas.user.email,
+        createdAt: schemas.user.createdAt,
+        role: schemas.workspaceUser.role,
+        owner: schemas.workspaceUser.owner,
+      })
+      .from(schemas.user)
+      .innerJoin(
+        schemas.workspaceUser,
+        eq(schemas.user.id, schemas.workspaceUser.userId),
+      )
+      .where(eq(schemas.workspaceUser.workspaceId, workspaceId));
 
     return users;
   }
