@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS "domains" (
 CREATE TABLE IF NOT EXISTS "sites" (
 	"id" varchar PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
+	"enabled" boolean NOT NULL,
 	"workspace_id" varchar NOT NULL,
 	"domain_id" varchar NOT NULL,
 	"api_key_id" varchar NOT NULL,

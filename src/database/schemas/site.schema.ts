@@ -1,4 +1,10 @@
-import { pgTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  pgTable,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 import { createId } from "@/helpers/custom-cuid2";
 
@@ -14,6 +20,7 @@ export const site = pgTable(
       .primaryKey()
       .unique(),
     name: varchar().notNull(),
+    enabled: boolean().notNull(),
     workspaceId: varchar()
       .notNull()
       .references(() => workspace.id),
