@@ -84,6 +84,22 @@ export default new Elysia().group("/domains", (app) => {
           workspaceId: domain.workspaceId,
         }),
       },
+    )
+    .delete(
+      "/:domainId",
+      async ({ user, params: { domainId }, query: { workspaceId } }) => {
+        await DomainService.deleteDomain(domainId, user.id, workspaceId);
+
+        return { message: "Domain deleted successfully", domainId };
+      },
+      {
+        params: t.Object({
+          domainId: domain.id,
+        }),
+        query: t.Object({
+          workspaceId: domain.workspaceId,
+        }),
+      },
     );
 
   return app;

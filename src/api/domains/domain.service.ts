@@ -190,4 +190,57 @@ export default abstract class DomainService {
 
     return updatedDomain;
   }
+
+  /**
+   * Deletes a domain if there are no related sites.
+   * @param domainId - The ID of the domain to be deleted.
+   * @param userId - The ID of the user requesting the deletion.
+   * @param workspaceId - The ID of the workspace containing the domain.
+   * @throws {Forbidden} If the user does not have permission to delete the domain.
+   * @throws {NotFound} If the domain is not found or if there are associated sites.
+   * @returns A promise that resolves when the domain is deleted.
+   */
+  static async deleteDomain(
+    domainId: string,
+    userId: string,
+    workspaceId: string,
+  ) {
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden("User does not have permission to delete the domain");
+    }
+
+    const domain = await db
+      .select()
+      .from(schemas.domain)
+      .where(
+        and(
+          eq(schemas.domain.id, domainId),
+          eq(schemas.domain.workspaceId, workspaceId),
+        ),
+      )
+      .limit(1);
+
+    if (!domain.length) {
+      throw new NotFound("Domain not found");
+    }
+
+    const associatedSites = await db
+      .select()
+      .from(schemas.site)
+      .where(eq(schemas.site.domainId, domainId));
+
+    if (associatedSites.length > 0) {
+      throw new Forbidden("Cannot delete domain with associated sites");
+    }
+
+    await db
+      .delete(schemas.domain)
+      .where(eq(schemas.domain.id, domainId))
+      .returning();
+  }
 }
