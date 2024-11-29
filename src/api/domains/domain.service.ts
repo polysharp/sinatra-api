@@ -65,6 +65,7 @@ export default abstract class DomainService {
       .select({
         domainName: schemas.domain.name,
         domainVerificationKey: schemas.domain.verificationKey,
+        verificationStatus: schemas.domain.verificationStatus,
       })
       .from(schemas.domain)
       .innerJoin(
@@ -87,6 +88,10 @@ export default abstract class DomainService {
       throw new NotFound("Domain not found");
     }
 
+    if (domain[0].verificationStatus === "VERIFIED") {
+      return domain[0];
+    }
+
     const domainVerified = await verifyDnsKey(
       domain[0].domainName,
       domain[0].domainVerificationKey,
@@ -100,6 +105,13 @@ export default abstract class DomainService {
       })
       .where(eq(schemas.domain.id, domainId))
       .returning();
+
+    if (domainVerified) {
+      await db
+        .update(schemas.site)
+        .set({ enabled: true })
+        .where(eq(schemas.site.domainId, domainId));
+    }
 
     return domainUpdated;
   }
