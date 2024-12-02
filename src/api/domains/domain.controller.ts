@@ -14,7 +14,7 @@ export default new Elysia().group("/domains", (app) => {
     .guard(authGuard)
     .post(
       "/",
-      async ({ user, body: { name: domainName }, query: { workspaceId } }) => {
+      async ({ user, body: { name: domainName, workspaceId } }) => {
         const domainCreated = await DomainService.createDomain({
           userId: user.id,
           workspaceId,
@@ -26,8 +26,6 @@ export default new Elysia().group("/domains", (app) => {
       {
         body: t.Object({
           name: domain.name,
-        }),
-        query: t.Object({
           workspaceId: domain.workspaceId,
         }),
       },
