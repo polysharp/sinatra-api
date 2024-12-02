@@ -14,7 +14,7 @@ export default new Elysia().group("/api-keys", (app) => {
     .guard(authGuard)
     .post(
       "/",
-      async ({ user, body: { name, workspaceId, value } }) => {
+      async ({ user, body: { name, value }, query: { workspaceId } }) => {
         const apiKeyCreated = await ApiKeyService.createApiKey({
           userId: user.id,
           workspaceId,
@@ -28,6 +28,8 @@ export default new Elysia().group("/api-keys", (app) => {
         body: t.Object({
           name: apiKey.name,
           value: apiKey.name,
+        }),
+        query: t.Object({
           workspaceId: apiKey.workspaceId,
         }),
       },
@@ -52,7 +54,8 @@ export default new Elysia().group("/api-keys", (app) => {
       "/:apiKeyId",
       async ({
         user,
-        body: { name, value, workspaceId },
+        body: { name, value },
+        query: { workspaceId },
         params: { apiKeyId },
       }) => {
         const updatedApiKey = await ApiKeyService.updateApiKey(
@@ -71,6 +74,8 @@ export default new Elysia().group("/api-keys", (app) => {
         body: t.Object({
           name: apiKey.name,
           value: apiKey.name,
+        }),
+        query: t.Object({
           workspaceId: apiKey.workspaceId,
         }),
       },

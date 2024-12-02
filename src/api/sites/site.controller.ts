@@ -70,7 +70,8 @@ export default new Elysia().group("/sites", (app) => {
       async ({
         user,
         params: { siteId },
-        body: { workspaceId, apiKeyId, name },
+        query: { workspaceId },
+        body: { apiKeyId, name },
       }) => {
         const updatedSite = await SiteService.updateSiteById({
           siteId,
@@ -90,8 +91,10 @@ export default new Elysia().group("/sites", (app) => {
         }),
         body: t.Object({
           name: t.Optional(site.name),
-          workspaceId: site.workspaceId,
           apiKeyId: t.Optional(site.apiKeyId),
+        }),
+        query: t.Object({
+          workspaceId: site.workspaceId,
         }),
       },
     )

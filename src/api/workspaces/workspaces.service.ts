@@ -3,7 +3,8 @@ import { and, eq } from "drizzle-orm";
 import db from "@/database/database";
 import schemas from "@/database/schemas";
 import { verifyPassword } from "@/helpers/hashpwd";
-import { Forbidden, Unauthorized } from "@/helpers/HttpError";
+import { Forbidden } from "@/helpers/HttpError";
+
 import UserService from "../users/user.service";
 
 export default abstract class WorkspaceService {
