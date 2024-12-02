@@ -14,6 +14,7 @@ export default abstract class UserService {
    * @param identifier {string} - The email address or ID of the user.
    * @param withPassword {boolean} - Whether to include the password field in the result.
    * @returns {Promise<Object | null>} - The user record or null if not found.
+   * @throws {InternalServerError} - If the identifier is not provided.
    */
   static async getUser<WithPassword extends boolean = false>(
     identifier: { email?: string; id?: string },
@@ -52,7 +53,7 @@ export default abstract class UserService {
    * @param workspaceId - The ID of the workspace to retrieve users from.
    * @param userId - The ID of the user making the request.
    * @returns A promise that resolves to an array of users
-   * @throws Will throw an error if the workspace does not belong to the user.
+   * @throws {Forbidden} - If the workspace does not belong to the user.
    */
   static async getUsers(workspaceId: string, userId: string) {
     await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);

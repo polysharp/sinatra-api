@@ -9,6 +9,7 @@ export default abstract class AuthService {
    * @param email {string} - The user's email address.
    * @param password {string} - The user's password.
    * @returns The newly created user and JWT token.
+   * @throws {InternalServerError} If hashing fails.
    */
   static async signUp(email: string, password: string) {
     const hashedPassword = await hashPassword(password);
@@ -39,6 +40,7 @@ export default abstract class AuthService {
    * @param userFromDb {typeof schemas.user.$inferSelect} - The user record from the database.
    * @param password {string} - The provided password.
    * @returns The authenticated user (without password) and JWT token.
+   * @throws {Unauthorized} If the password does not match the hashed password.
    */
   static async signIn(
     userFromDb: typeof schemas.user.$inferSelect,

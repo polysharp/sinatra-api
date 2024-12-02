@@ -107,7 +107,7 @@ export default abstract class WorkspaceService {
    * @param workspaceId {string} - The ID of the workspace to delete.
    * @param workspaceName {string} - The name of the workspace to confirm deletion.
    * @param password {string} - The password of the user for authentication.
-   * @throws {Unauthorized} - If the credentials are incorrect.
+   * @throws {Unauthorized} - If the password is incorrect.
    * @throws {Forbidden} - If the workspace does not belong to the user and/or if the user is not the owner of the workspace.
    */
   static async deleteWorkspace(

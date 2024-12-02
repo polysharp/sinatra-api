@@ -18,6 +18,7 @@ export default abstract class DomainService {
    * Creates a new domain associated with a workspace.
    * @param payload {CreateDomainInput} - Contains userId, workspaceId, and domainName.
    * @returns The newly created domain.
+   * @throws {Forbidden} If the workspace does not belong to the user.
    */
   static async createDomain(payload: CreateDomainInput) {
     const { userId, workspaceId, domainName } = payload;
@@ -42,6 +43,7 @@ export default abstract class DomainService {
    * @param userId {string} - The user's ID.
    * @param workspaceId {string} - The workspace's ID.
    * @returns A list of domains.
+   * @throws {Forbidden} If the workspace does not belong to the user.
    */
   static async getUserWorkspaceDomains(userId: string, workspaceId: string) {
     await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
@@ -59,6 +61,7 @@ export default abstract class DomainService {
    * @param domainId {string} - The domain's ID.
    * @param userId {string} - The user's ID.
    * @returns The updated domain record.
+   * @throws {BadRequest} If the domain does not exist.
    */
   static async verifyDns(domainId: string, userId: string) {
     const domain = await db
@@ -85,7 +88,7 @@ export default abstract class DomainService {
       .limit(1);
 
     if (!domain.length) {
-      throw new NotFound("Domain not found");
+      throw new BadRequest("Domain does not exist");
     }
 
     if (domain[0].verificationStatus === "VERIFIED") {
@@ -148,6 +151,8 @@ export default abstract class DomainService {
    * Additionally, all associated sites are disabled.
    * @param payload {object} - Contains domainId, userId, workspaceId, and domainName.
    * @returns The updated domain.
+   * @throws {Forbidden} If the workspace does not belong to the user or if the user does not have the ADMIN role.
+   * @throws {BadRequest} If the domain does not exist.
    */
   static async updateDomain(payload: {
     domainId: string;
@@ -178,7 +183,7 @@ export default abstract class DomainService {
       .limit(1);
 
     if (!domain.length) {
-      throw new NotFound("Domain not found");
+      throw new BadRequest("Domain does not exist");
     }
 
     const updateFields: any = {};
@@ -211,8 +216,8 @@ export default abstract class DomainService {
    * @param domainId - The ID of the domain to be deleted.
    * @param userId - The ID of the user requesting the deletion.
    * @param workspaceId - The ID of the workspace containing the domain.
-   * @throws {Forbidden} If the user does not have permission to delete the domain.
-   * @throws {NotFound} If the domain is not found or if there are associated sites.
+   * @throws {Forbidden} If the user does not have permission to delete the domain or if the domain has associated sites.
+   * @throws {BadRequest} If the domain does not exist.
    * @returns A promise that resolves when the domain is deleted.
    */
   static async deleteDomain(
@@ -241,7 +246,7 @@ export default abstract class DomainService {
       .limit(1);
 
     if (!domain.length) {
-      throw new NotFound("Domain not found");
+      throw new BadRequest("Domain does not exist");
     }
 
     const associatedSites = await db

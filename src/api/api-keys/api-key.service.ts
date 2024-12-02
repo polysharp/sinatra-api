@@ -19,6 +19,7 @@ export default abstract class ApiKeyService {
    * Creates a new API Key associated with a workspace.
    * @param payload {CreateApiKeyInput} Object containing API key details.
    * @returns The newly created API Key.
+   * @throws {Forbidden} If the workspace does not belong to the user.
    */
   static async createApiKey(payload: CreateApiKeyInput) {
     const { userId, workspaceId, name, value } = payload;
@@ -50,6 +51,7 @@ export default abstract class ApiKeyService {
    * @param userId {string} User's ID.
    * @param workspaceId {string} Workspace's ID.
    * @returns List of API keys for the workspace.
+   * @throws {Forbidden} If the workspace does not belong to the user.
    */
   static async getUserWorkspaceApiKeys(userId: string, workspaceId: string) {
     await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
@@ -72,7 +74,7 @@ export default abstract class ApiKeyService {
    * Checks if an API key exists for a specific workspace.
    * @param apiKeyId {string} The ID of the API key.
    * @param workspaceId {string} Workspace's ID.
-   * @throws {BadRequest} If the API key does not exist.
+   * @throws {BadRequest} If the API key does not exist for the given workspace.
    */
   static async apiKeyExists(apiKeyId: string, workspaceId: string) {
     const apiKey = await db
@@ -98,6 +100,7 @@ export default abstract class ApiKeyService {
    * @param updateData {Partial<CreateApiKeyInput>} Data to update the API key with.
    * @returns The updated API key.
    * @throws {BadRequest} If the API key does not exist.
+   * @throws {Forbidden} If the workspace does not belong to the user or the user is not an ADMIN.
    */
   static async updateApiKey(
     apiKeyId: string,
@@ -145,6 +148,7 @@ export default abstract class ApiKeyService {
    * @param apiKeyId {string} The ID of the API key to delete.
    * @param userId {string} The ID of the user requesting the deletion.
    * @param workspaceId {string} Workspace's ID.
+   * @throws {Forbidden} If the workspace does not belong to the user.
    * @throws {Forbidden} If the user is not an ADMIN or the API key does not exist.
    */
   static async deleteApiKey(

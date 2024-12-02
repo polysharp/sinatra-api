@@ -72,7 +72,7 @@ export default abstract class SiteService {
    * @param workspaceId - The ID of the workspace
    * @param userId - The ID of the user
    * @returns The site
-   * @throws {NotFound} - If the site is not found
+   * @throws {BadRequest} - If the site does not exist
    * @throws {Forbidden} - If the user does not belong to the workspace
    */
   static async getSiteById(
@@ -89,7 +89,7 @@ export default abstract class SiteService {
       .limit(1);
 
     if (!sites.length) {
-      throw new NotFound("Site not found");
+      throw new BadRequest("Site does not exist");
     }
 
     return sites[0];
@@ -101,7 +101,8 @@ export default abstract class SiteService {
    * @returns The updated site
    * @throws {Forbidden} - If the user does not belong to the workspace or is not an admin
    * @throws {BadRequest} - If the Api Key does not exist
-   * @throws {BadRequest} - If the site does not exist
+   * @throws {BadRequest} - If the Site does not exist
+   * @throws {BadRequest} - If the Domain does not exist
    */
   static async updateSiteById(payload: {
     siteId: string;
@@ -160,7 +161,7 @@ export default abstract class SiteService {
    * @returns The updated site with the toggled enabled status
    * @throws {Forbidden} - If the user does not belong to the workspace or is not an admin
    * @throws {BadRequest} - If the site does not exist
-   * @throws {BadRequest} - If the domain is not verified when enabling the site
+   * @throws {BadRequest} - If the domain does not exist or is not verified
    */
   static async toggleSiteEnabledStatus(
     siteId: string,
@@ -185,7 +186,7 @@ export default abstract class SiteService {
       .limit(1);
 
     if (!site) {
-      throw new BadRequest("Site not found");
+      throw new BadRequest("Site does not exist");
     }
 
     let newEnabledStatus = !site.enabled;
@@ -238,7 +239,7 @@ export default abstract class SiteService {
       .limit(1);
 
     if (!site) {
-      throw new BadRequest("Site not found");
+      throw new BadRequest("Site does not exist");
     }
 
     await db.delete(schemas.site).where(eq(schemas.site.id, siteId));
