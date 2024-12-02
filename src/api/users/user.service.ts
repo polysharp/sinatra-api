@@ -2,6 +2,7 @@ import { eq, getTableColumns } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
+import { InternalServerError } from "@/helpers/HttpError";
 
 import WorkspaceUserService from "../workspace-users/workspace-users.service";
 
@@ -9,13 +10,13 @@ type WithoutPassword<T> = Omit<T, "password">;
 
 export default abstract class UserService {
   /**
-   * Fetches a user by email with or without the password field.
-   * @param email {string} - The email address of the user.
+   * Fetches a user by email or ID with or without the password field.
+   * @param identifier {string} - The email address or ID of the user.
    * @param withPassword {boolean} - Whether to include the password field in the result.
    * @returns {Promise<Object | null>} - The user record or null if not found.
    */
-  static async getUserWithEmail<WithPassword extends boolean = false>(
-    email: string,
+  static async getUser<WithPassword extends boolean = false>(
+    identifier: { email?: string; id?: string },
     withPassword: WithPassword = false as WithPassword,
   ): Promise<
     WithPassword extends true
@@ -30,11 +31,17 @@ export default abstract class UserService {
       columns = getTableColumns(schemas.user);
     }
 
-    const [userExists] = await db
-      .select(columns)
-      .from(schemas.user)
-      .where(eq(schemas.user.email, email))
-      .limit(1);
+    const query = db.select(columns).from(schemas.user);
+
+    if (identifier.email) {
+      query.where(eq(schemas.user.email, identifier.email));
+    } else if (identifier.id) {
+      query.where(eq(schemas.user.id, identifier.id));
+    } else {
+      throw new InternalServerError();
+    }
+
+    const [userExists] = await query.limit(1);
 
     return userExists ? (userExists as any) : null;
   }

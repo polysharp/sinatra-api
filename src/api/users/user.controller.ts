@@ -13,7 +13,7 @@ export default new Elysia().group("/users", (app) => {
     .derive(authMiddleware)
     .guard(authGuard)
     .get("/me", async ({ user }) => {
-      const userFromDb = await UserService.getUserWithEmail(user.email);
+      const userFromDb = await UserService.getUser({ id: user.id });
 
       return userFromDb;
     })

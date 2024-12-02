@@ -15,7 +15,7 @@ export default new Elysia().group("/auth", (app) => {
 
       let user, token;
 
-      const userFromDb = await UserService.getUserWithEmail(email, true);
+      const userFromDb = await UserService.getUser({ email }, true);
       if (userFromDb) {
         const signInRes = await AuthService.signIn(userFromDb, password);
 

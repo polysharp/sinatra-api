@@ -19,7 +19,12 @@ export default abstract class AuthService {
         email,
         password: hashedPassword,
       })
-      .returning({ id: schemas.user.id, email: schemas.user.email });
+      .returning({
+        id: schemas.user.id,
+        email: schemas.user.email,
+        createdAt: schemas.user.createdAt,
+        updatedAt: schemas.user.updatedAt,
+      });
 
     const token = await createJwt({
       userId: userCreated.id,
