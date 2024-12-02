@@ -51,6 +51,48 @@ export default new Elysia().group("/workspaces", (app) => {
           workspaceId: workspace.id,
         }),
       },
+    )
+    .put(
+      "/:workspaceId",
+      async ({ user, params: { workspaceId }, body: { name } }) => {
+        const updatedWorkspace = await WorkspaceService.updateWorkspace(
+          user.id,
+          workspaceId,
+          { name },
+        );
+
+        return updatedWorkspace;
+      },
+      {
+        params: t.Object({
+          workspaceId: workspace.id,
+        }),
+        body: t.Object({
+          name: workspace.name,
+        }),
+      },
+    )
+    .delete(
+      "/:workspaceId",
+      async ({ user, params: { workspaceId }, body: { name, password } }) => {
+        await WorkspaceService.deleteWorkspace(
+          user.id,
+          workspaceId,
+          name,
+          password,
+        );
+
+        return { message: "Workspace deleted successfully" };
+      },
+      {
+        params: t.Object({
+          workspaceId: workspace.id,
+        }),
+        body: t.Object({
+          name: workspace.name,
+          password: t.String(),
+        }),
+      },
     );
 
   return app;
