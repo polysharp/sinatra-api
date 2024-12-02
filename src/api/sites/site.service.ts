@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import db from "@/database/database";
 import schemas from "@/database/schemas";
-import { BadRequest, NotFound } from "@/helpers/HttpError";
+import { BadRequest, Forbidden, NotFound } from "@/helpers/HttpError";
 
 import ApiKeyService from "../api-keys/api-key.service";
 import DomainService from "../domains/domain.service";
@@ -99,7 +99,7 @@ export default abstract class SiteService {
    * Updates a site by its ID
    * @param payload - The input data for updating a site
    * @returns The updated site
-   * @throws {Forbidden} - If the user does not belong to the workspace
+   * @throws {Forbidden} - If the user does not belong to the workspace or is not an admin
    * @throws {BadRequest} - If the Api Key does not exist
    * @throws {BadRequest} - If the site does not exist
    */
@@ -120,7 +120,7 @@ export default abstract class SiteService {
     );
 
     if (userRole !== "ADMIN") {
-      throw new Error("User does not have permission to update the site");
+      throw new Forbidden("User does not have permission to update the site");
     }
 
     if (updateData.apiKeyId) {
@@ -150,5 +150,99 @@ export default abstract class SiteService {
       .returning();
 
     return updatedSite;
+  }
+
+  /**
+   * Toggles the enabled status of a site
+   * @param siteId - The ID of the site
+   * @param workspaceId - The ID of the workspace
+   * @param userId - The ID of the user
+   * @returns The updated site with the toggled enabled status
+   * @throws {Forbidden} - If the user does not belong to the workspace or is not an admin
+   * @throws {BadRequest} - If the site does not exist
+   * @throws {BadRequest} - If the domain is not verified when enabling the site
+   */
+  static async toggleSiteEnabledStatus(
+    siteId: string,
+    workspaceId: string,
+    userId: string,
+  ) {
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden(
+        "User does not have permission to toggle the site status",
+      );
+    }
+
+    const [site] = await db
+      .select()
+      .from(schemas.site)
+      .where(eq(schemas.site.id, siteId))
+      .limit(1);
+
+    if (!site) {
+      throw new BadRequest("Site not found");
+    }
+
+    let newEnabledStatus = !site.enabled;
+
+    if (newEnabledStatus) {
+      const domain = await DomainService.domainExists(
+        site.domainId,
+        workspaceId,
+      );
+      if (domain.verificationStatus !== "VERIFIED") {
+        throw new BadRequest("Domain is not verified, cannot enable the site");
+      }
+    }
+
+    const [updatedSite] = await db
+      .update(schemas.site)
+      .set({ enabled: newEnabledStatus })
+      .where(eq(schemas.site.id, siteId))
+      .returning();
+
+    return updatedSite;
+  }
+
+  /**
+   * Deletes a site by its ID
+   * @param siteId - The ID of the site
+   * @param workspaceId - The ID of the workspace
+   * @param userId - The ID of the user
+   * @throws {Forbidden} - If the user does not belong to the workspace or is not an admin
+   * @throws {BadRequest} - If the site does not exist
+   */
+  static async deleteSiteById(
+    siteId: string,
+    workspaceId: string,
+    userId: string,
+  ) {
+    const userRole = await WorkspaceUserService.getUserRoleInWorkspace(
+      workspaceId,
+      userId,
+    );
+
+    if (userRole !== "ADMIN") {
+      throw new Forbidden("User does not have permission to delete the site");
+    }
+
+    const [site] = await db
+      .select()
+      .from(schemas.site)
+      .where(eq(schemas.site.id, siteId))
+      .limit(1);
+
+    if (!site) {
+      throw new BadRequest("Site not found");
+    }
+
+    await db.delete(schemas.site).where(eq(schemas.site.id, siteId));
+
+    return { message: "Site deleted successfully" };
   }
 }

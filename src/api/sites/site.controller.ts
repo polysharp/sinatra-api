@@ -94,6 +94,40 @@ export default new Elysia().group("/sites", (app) => {
           apiKeyId: t.Optional(site.apiKeyId),
         }),
       },
+    )
+    .patch(
+      "/:siteId/toggle-enabled",
+      async ({ user, params: { siteId }, query: { workspaceId } }) => {
+        const updatedSite = await SiteService.toggleSiteEnabledStatus(
+          siteId,
+          workspaceId,
+          user.id,
+        );
+
+        return updatedSite;
+      },
+      {
+        params: t.Object({
+          siteId: site.id,
+        }),
+        query: t.Object({
+          workspaceId: site.workspaceId,
+        }),
+      },
+    )
+    .delete(
+      "/:siteId",
+      async ({ user, params: { siteId }, query: { workspaceId } }) => {
+        return await SiteService.deleteSiteById(siteId, workspaceId, user.id);
+      },
+      {
+        params: t.Object({
+          siteId: site.id,
+        }),
+        query: t.Object({
+          workspaceId: site.workspaceId,
+        }),
+      },
     );
 
   return app;
