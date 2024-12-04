@@ -32,6 +32,39 @@ export default new Elysia().group("/analyses", (app) => {
           workspaceId: workspace.id,
         }),
       },
+    )
+    .get(
+      "/",
+      async ({
+        user,
+        query: { siteId, workspaceId, offset, limit, startDate, endDate },
+      }) => {
+        const analyses = await AnalysisService.getAnalysesBySiteId(
+          siteId,
+          workspaceId,
+          user.id,
+          {
+            offset: offset ? parseInt(offset, 10) : undefined,
+            limit: limit ? parseInt(limit, 10) : undefined,
+            startDate,
+            endDate,
+          },
+        );
+
+        return analyses;
+      },
+      {
+        query: t.Object({
+          siteId: t.String(),
+          workspaceId: t.String(),
+          offset: t.Optional(
+            t.String({ format: "regex", pattern: "^[0-9]+$" }),
+          ),
+          limit: t.Optional(t.String({ format: "regex", pattern: "^[0-9]+$" })),
+          startDate: t.Optional(t.String({ format: "date" })),
+          endDate: t.Optional(t.String({ format: "date" })),
+        }),
+      },
     );
 
   return app;

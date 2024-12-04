@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import fetch from "node-fetch";
 import { z } from "zod";
 
@@ -8,12 +8,12 @@ import schemas from "@/database/schemas";
 import { decrypt } from "@/helpers/crypto";
 import { Forbidden, InternalServerError } from "@/helpers/HttpError";
 import logger from "@/helpers/logger";
+import { calculateTimeDifferenceInSeconds } from "@/helpers/time.helper";
 
 import ApiKeyService from "../api-keys/api-key.service";
 import DomainService from "../domains/domain.service";
 import SiteService from "../sites/site.service";
 import WorkspaceUserService from "../workspace-users/workspace-users.service";
-import { calculateTimeDifferenceInSeconds } from "@/helpers/time.helper";
 
 export default abstract class AnalysisService {
   /**
@@ -54,6 +54,65 @@ export default abstract class AnalysisService {
     });
 
     return analysis;
+  }
+
+  /**
+   * Retrieves analyses for a specific site within a workspace, filtered by various options.
+   * @param siteId - The ID of the site to retrieve analyses for.
+   * @param workspaceId - The ID of the workspace the site belongs to.
+   * @param userId - The ID of the user requesting the analyses.
+   * @param options - Filtering options for the analyses.
+   * @returns A promise that resolves to an array of analyses.
+   * @throws {Forbidden} - If the workspace does not belong to the user.
+   * @throws {BadRequest} - If the site does not exist
+   */
+  public static async getAnalysesBySiteId(
+    siteId: string,
+    workspaceId: string,
+    userId: string,
+    options: {
+      offset?: number;
+      limit?: number;
+      startDate?: string;
+      endDate?: string;
+    },
+  ) {
+    await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
+
+    const site = await SiteService.getSiteById(siteId, workspaceId, userId);
+
+    const conditions = [
+      eq(schemas.analysis.siteId, site.id),
+      eq(schemas.analysis.status, "SUCCESS"),
+    ];
+
+    if (options.startDate) {
+      conditions.push(
+        gte(schemas.analysis.updatedAt, new Date(options.startDate)),
+      );
+    }
+    if (options.endDate) {
+      conditions.push(
+        lte(schemas.analysis.updatedAt, new Date(options.endDate)),
+      );
+    }
+
+    const query = db
+      .select()
+      .from(schemas.analysis)
+      .where(and(...conditions))
+      .orderBy(desc(schemas.analysis.updatedAt));
+
+    if (options.limit) {
+      query.limit(options.limit);
+    }
+    if (options.offset) {
+      query.offset(options.offset);
+    }
+
+    const analyses = await query.execute();
+
+    return analyses;
   }
 
   /**
