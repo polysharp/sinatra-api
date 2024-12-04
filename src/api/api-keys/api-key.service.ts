@@ -74,6 +74,7 @@ export default abstract class ApiKeyService {
    * Checks if an API key exists for a specific workspace.
    * @param apiKeyId {string} The ID of the API key.
    * @param workspaceId {string} Workspace's ID.
+   * @returns The API key if it exists.
    * @throws {BadRequest} If the API key does not exist for the given workspace.
    */
   static async apiKeyExists(apiKeyId: string, workspaceId: string) {
@@ -85,11 +86,14 @@ export default abstract class ApiKeyService {
           eq(schemas.apiKey.id, apiKeyId),
           eq(schemas.apiKey.workspaceId, workspaceId),
         ),
-      );
+      )
+      .limit(1);
 
     if (!apiKey.length) {
       throw new BadRequest("API Key does not exist");
     }
+
+    return apiKey[0];
   }
 
   /**

@@ -5,6 +5,20 @@ import schemas from "./schemas";
 import { spreads } from "./utils";
 
 export const models = {
+  analysis: {
+    insert: spreads(
+      {
+        analysis: createInsertSchema(schemas.analysis),
+      },
+      "insert",
+    ),
+    select: spreads(
+      {
+        analysis: createSelectSchema(schemas.analysis),
+      },
+      "select",
+    ),
+  },
   apiKey: {
     insert: spreads(
       {

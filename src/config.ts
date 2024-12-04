@@ -16,6 +16,8 @@ const configSchema = z.object({
     .min(32, "API_KEY_CIPHER_SECRET must be exactly 32 characters")
     .max(32, "API_KEY_CIPHER_SECRET must be exactly 32 characters"),
   NODE_ENV: z.enum(["development", "production", "test"]),
+  SUPABASE_URL: z.string().url("SUPABASE_URL must be a valid URL"),
+  SUPABASE_SECRET: z.string().min(1),
 });
 
 const parseConfig = (env = Bun.env): Config => {
