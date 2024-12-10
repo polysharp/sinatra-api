@@ -37,7 +37,15 @@ export default new Elysia().group("/analyses", (app) => {
       "/",
       async ({
         user,
-        query: { siteId, workspaceId, offset, limit, startDate, endDate },
+        query: {
+          siteId,
+          workspaceId,
+          offset,
+          limit,
+          startDate,
+          endDate,
+          status,
+        },
       }) => {
         const analyses = await AnalysisService.getAnalysesBySiteId(
           siteId,
@@ -48,6 +56,7 @@ export default new Elysia().group("/analyses", (app) => {
             limit: limit ? parseInt(limit, 10) : undefined,
             startDate,
             endDate,
+            status,
           },
         );
 
@@ -63,6 +72,15 @@ export default new Elysia().group("/analyses", (app) => {
           limit: t.Optional(t.String({ format: "regex", pattern: "^[0-9]+$" })),
           startDate: t.Optional(t.String({ format: "date" })),
           endDate: t.Optional(t.String({ format: "date" })),
+          status: t.Optional(
+            t.Array(
+              t.Enum({
+                SUCCESS: "SUCCESS",
+                PENDING: "PENDING",
+                FAILED: "FAILED",
+              }),
+            ),
+          ),
         }),
       },
     );

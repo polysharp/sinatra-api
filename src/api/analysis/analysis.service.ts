@@ -76,6 +76,7 @@ export default abstract class AnalysisService {
       limit?: number;
       startDate?: string;
       endDate?: string;
+      status?: Array<"PENDING" | "SUCCESS" | "FAILED">;
     },
   ) {
     await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
@@ -99,7 +100,9 @@ export default abstract class AnalysisService {
       conditions.push(inArray(schemas.analysis.siteId, siteIds));
     }
 
-    conditions.push(eq(schemas.analysis.status, "SUCCESS"));
+    if (options.status && options.status.length > 0) {
+      conditions.push(inArray(schemas.analysis.status, options.status));
+    }
 
     if (options.startDate) {
       conditions.push(
