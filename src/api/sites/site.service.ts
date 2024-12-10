@@ -246,4 +246,22 @@ export default abstract class SiteService {
 
     return { message: "Site deleted successfully" };
   }
+
+  /**
+   * Retrieves all sites for a given workspace
+   * @param workspaceId - The ID of the workspace
+   * @param userId - The ID of the user
+   * @returns The list of sites
+   * @throws {Forbidden} - If the user does not belong to the workspace
+   */
+  static async getSitesByWorkspaceId(workspaceId: string, userId: string) {
+    await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
+
+    const sites = await db
+      .select()
+      .from(schemas.site)
+      .where(eq(schemas.site.workspaceId, workspaceId));
+
+    return sites;
+  }
 }

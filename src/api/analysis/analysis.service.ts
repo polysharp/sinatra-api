@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import fetch from "node-fetch";
 import { z } from "zod";
 
@@ -58,6 +58,7 @@ export default abstract class AnalysisService {
 
   /**
    * Retrieves analyses for a specific site within a workspace, filtered by various options.
+   * If the site ID is not provided, analyses for all sites within the workspace are retrieved.
    * @param siteId - The ID of the site to retrieve analyses for.
    * @param workspaceId - The ID of the workspace the site belongs to.
    * @param userId - The ID of the user requesting the analyses.
@@ -67,7 +68,7 @@ export default abstract class AnalysisService {
    * @throws {BadRequest} - If the site does not exist
    */
   public static async getAnalysesBySiteId(
-    siteId: string,
+    siteId: string | undefined,
     workspaceId: string,
     userId: string,
     options: {
@@ -79,12 +80,26 @@ export default abstract class AnalysisService {
   ) {
     await WorkspaceUserService.workspaceBelongsToUser(workspaceId, userId);
 
-    const site = await SiteService.getSiteById(siteId, workspaceId, userId);
+    let conditions = [];
 
-    const conditions = [
-      eq(schemas.analysis.siteId, site.id),
-      eq(schemas.analysis.status, "SUCCESS"),
-    ];
+    if (siteId) {
+      const site = await SiteService.getSiteById(siteId, workspaceId, userId);
+      conditions.push(eq(schemas.analysis.siteId, site.id));
+    } else {
+      const sites = await SiteService.getSitesByWorkspaceId(
+        workspaceId,
+        userId,
+      );
+      const siteIds = sites.map((site) => site.id);
+
+      if (siteIds.length === 0) {
+        return [];
+      }
+
+      conditions.push(inArray(schemas.analysis.siteId, siteIds));
+    }
+
+    conditions.push(eq(schemas.analysis.status, "SUCCESS"));
 
     if (options.startDate) {
       conditions.push(

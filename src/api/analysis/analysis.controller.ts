@@ -55,7 +55,7 @@ export default new Elysia().group("/analyses", (app) => {
       },
       {
         query: t.Object({
-          siteId: t.String(),
+          siteId: t.Optional(t.String()),
           workspaceId: t.String(),
           offset: t.Optional(
             t.String({ format: "regex", pattern: "^[0-9]+$" }),
