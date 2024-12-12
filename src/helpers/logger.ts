@@ -14,12 +14,12 @@ const REDACT_PATHS = [
   "[*].*.password",
 ];
 
-class Logger {
+export class Logger {
   private readonly logger: pino.Logger<"http">;
 
-  constructor(nodeEnv: string) {
-    if (!fs.existsSync("./logs")) {
-      fs.mkdirSync("./logs");
+  constructor(nodeEnv: string, logsDir: string = "./logs") {
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
     }
 
     const streams = [
@@ -32,11 +32,11 @@ class Logger {
       },
       {
         level: "info",
-        stream: fs.createWriteStream("./logs/all.log", { flags: "a" }),
+        stream: fs.createWriteStream(`${logsDir}/all.log`, { flags: "a" }),
       },
       {
         level: "error",
-        stream: fs.createWriteStream("./logs/error.log", { flags: "a" }),
+        stream: fs.createWriteStream(`${logsDir}/error.log`, { flags: "a" }),
       },
     ];
 
