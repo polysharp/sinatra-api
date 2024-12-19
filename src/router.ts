@@ -7,8 +7,9 @@ import domainController from "./api/domains/domain.controller";
 import siteController from "./api/sites/site.controller";
 import userController from "./api/users/user.controller";
 import workspaceController from "./api/workspaces/workspaces.controller";
+import config from "./config";
 
-export default new Elysia()
+export default new Elysia({ prefix: config.API_PREFIX })
   .use(analysisController)
   .use(apiKeyController)
   .use(authController)

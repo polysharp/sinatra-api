@@ -9,6 +9,7 @@ const configSchema = z.object({
     .regex(/^\d+$/, "PORT must be a number")
     .transform(Number)
     .default("3000"),
+  API_PREFIX: z.string().default("/sinatra-api"),
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   API_KEY_CIPHER_SECRET: z
