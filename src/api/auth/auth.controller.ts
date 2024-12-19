@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 
+import config from "@/config";
 import { models } from "@/database/models";
 
 import UserService from "../users/user.service";
@@ -37,8 +38,9 @@ export default new Elysia().group("/auth", (app) => {
         path: "/",
         secure: true,
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 60 * 60 * 24 * 30,
+        domain: config.COOKIE_DOMAIN,
       });
 
       return { user, token };

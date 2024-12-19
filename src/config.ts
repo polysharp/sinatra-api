@@ -19,6 +19,7 @@ const configSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]),
   SUPABASE_URL: z.string().url("SUPABASE_URL must be a valid URL"),
   SUPABASE_SECRET: z.string().min(1),
+  COOKIE_DOMAIN: z.string().default("sinatra.polysharp.fr"),
 });
 
 const parseConfig = (env = Bun.env): Config => {
